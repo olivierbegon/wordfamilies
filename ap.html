@@ -41,7 +41,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--read);font-size:18p
 .wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:24px 48px;display:flex;flex-direction:column;gap:24px}
 h1,h2{font-family:var(--display);font-weight:800;text-wrap:balance;margin:0}
 h1{font-size:clamp(2.4rem,9vw,3.6rem);line-height:1.05}
-h1 .am{color:var(--jam)}
+h1 .am{color:var(--jam);white-space:nowrap}
 .back{display:inline-flex;align-self:flex-start;font-family:var(--display);color:var(--ink);text-decoration:none;background:var(--panel);border:3px solid var(--line);border-radius:999px;padding:6px 16px;font-size:1.05rem}
 .back:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
 h2{font-size:1.7rem}
@@ -97,6 +97,33 @@ button:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
   @keyframes pop{0%{transform:scale(.7)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
 }
 @media (max-width:420px){.choice{font-size:2.4rem}}
+
+/* two houses side by side on the mixed page */
+.houses{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
+.houses .roof{border-left-width:90px;border-right-width:90px;border-bottom-width:54px}
+.houses .walls{width:150px;font-size:3.6rem;padding:14px}
+.housecol{display:flex;flex-direction:column;align-items:center;gap:12px}
+.rowlabel{font-family:var(--display);color:var(--soft);text-align:center;margin:0;font-size:1rem}
+.tile.rime{background:var(--butter);color:#1D2742;border-color:var(--butter)}
+.tile.rime[aria-pressed="true"]{background:var(--jam);color:var(--jam-ink);border-color:var(--jam)}
+
+/* spelling */
+.slots{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.slot{width:64px;height:76px;border-radius:16px;border:3px dashed var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--read);font-weight:700;font-size:2.6rem;background:var(--bg)}
+.slot.filled{border-style:solid;border-color:var(--jam)}
+.slot.ok{border-style:solid;border-color:var(--leaf);background:var(--leaf);color:#fff}
+.slot.bad{border-style:solid;border-color:var(--jam);background:var(--jam);color:var(--jam-ink)}
+.tile:disabled{opacity:.3}
+.row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.spic{font-size:4rem;text-align:center;line-height:1.1;min-height:4.6rem}
+
+/* game: sound-it-out help */
+.qpic .seg{letter-spacing:.35em;color:var(--jam)}
+.practice{color:var(--soft);text-align:center;margin:0;font-size:1.1rem}
+@media (prefers-reduced-motion:no-preference){
+  .shake{animation:shake .4s ease}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+}
 </style>
 
 <div class="wrap">
@@ -118,56 +145,76 @@ button:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
   <section class="card" aria-labelledby="s1">
     <div class="step">Part 1</div>
     <h2 id="s1">Meet the family house</h2>
-    <div class="house" aria-hidden="true"><div class="roof"></div><div class="walls">ap</div></div>
+    <div class="houses" id="houses"></div>
     <p class="hint">Say it with me: “aaaa… p… ap!” Tap to hear it.</p>
-    <div style="text-align:center"><button class="say" id="sayAm">🔊 Hear “ap”</button></div>
   </section>
 
   <section class="card" aria-labelledby="s2">
-    <div class="step">Part 2 · about 3 min</div>
+    <div class="step">Part 2 · about 2 min</div>
     <h2 id="s2">Build a word</h2>
-    <p class="hint">Pick a first sound. It jumps in front of <b>ap</b>! Read it out loud, then tap <b>Check it</b>.</p>
+    <p class="hint" id="bhint"></p>
+    <p class="rowlabel" id="onLabel" hidden>First sound</p>
     <div class="tiles" id="tiles"></div>
-    <div class="built" aria-live="polite"><span class="pic" id="bpic">🏠</span><span class="word" id="bword">_<span class="on">ap</span></span></div>
+    <p class="rowlabel" id="rimeLabel" hidden>Ending</p>
+    <div class="tiles" id="rimes" hidden></div>
+    <div class="built" aria-live="polite"><span class="pic" id="bpic">🏠</span><span class="word" id="bword"></span></div>
     <div style="text-align:center"><button class="say" id="sayBuilt">✅ Check it</button></div>
     <p class="prog" id="bprog" aria-live="polite"></p>
   </section>
 
   <section class="card" aria-labelledby="s3">
-    <div class="step">Part 3 · about 2–3 min</div>
-    <h2 id="s3">Which word is it?</h2>
-    <p class="hint">Read the word. Tap the picture that matches.</p>
+    <div class="step">Part 3 · about 2 min</div>
+    <h2 id="s3">Spell it!</h2>
+    <p class="hint">Listen to the word. Tap the letters to spell it.</p>
+    <p class="prog" id="sprogSpell"></p>
+    <div style="text-align:center"><button class="say" id="hearSpell">🔊 Hear the word</button></div>
+    <div class="spic" id="spellPic" aria-live="polite"></div>
+    <div class="slots" id="slots"></div>
+    <div class="tiles" id="letters"></div>
+    <div class="row">
+      <button class="say small" id="undo">⬅ Undo</button>
+      <button class="say" id="checkSpell">✅ Check</button>
+    </div>
+    <p class="msg" id="spellMsg" aria-live="polite"></p>
+    <div class="stars" id="spellStars" aria-label="stars earned"></div>
+  </section>
+
+  <section class="card" aria-labelledby="s4">
+    <div class="step">Part 4 · about 2 min</div>
+    <h2 id="s4">Which word is it?</h2>
+    <p class="hint">Read the word. Tap the picture that matches. A star for each one right on the first try!</p>
     <p class="prog" id="qprog"></p>
     <div class="qpic" id="qpic" aria-live="polite"></div>
     <div class="choices" id="choices"></div>
     <p class="msg" id="msg" aria-live="polite"></p>
     <div class="stars" id="stars" aria-label="stars earned"></div>
+    <p class="practice" id="practice"></p>
   </section>
 
-  <section class="card" aria-labelledby="s4">
-    <div class="step">Part 4 · about 3 min</div>
-    <h2 id="s4">Silly story: Hap the Pup</h2>
-    <p class="hint">Read one line. Then tap it to check. Find the pink <b>ap</b> words!</p>
+  <section class="card" aria-labelledby="s5">
+    <div class="step">Part 5 · about 2 min</div>
+    <h2 id="s5">Silly story: Hap the Pup</h2>
+    <p class="hint">Read one line. Then tap it to check. Find the pink words!</p>
     <div class="story" id="story"></div>
     <p class="prog" id="sprog" aria-live="polite"></p>
   </section>
 
-  <section class="card grown" aria-labelledby="s5">
-    <h2 id="s5">For the grown-up</h2>
-    <ul>
-      <li>Keep it short: 5–10 minutes, stop while she still wants more.</li>
-      <li>In Part 2, have her say the first sound, then “ap”, then blend them: “c… ap… cap!” Blending onset + rime is the skill word families build.</li>
-      <li>In Part 3, cover the words and ask her to read before tapping, so it isn't guessing by elimination.</li>
-      <li>Pair this with the school's booklets on Hubbard's Cupboard (“Hap Can See”, then “I Like to Dance!”) and magnetic letters on the fridge.</li>
-      <li>Praise the effort and the sounding out, not just right answers.</li>
-    </ul>
+  <section class="card grown" aria-labelledby="s6">
+    <h2 id="s6">For the grown-up</h2>
+    <ul><li>Keep it short: about 10 minutes, stop while she still wants more.</li><li>In Part 2, have her say the first sound, then the ending, then blend them: “c… ap… cap!” Blending is the skill word families build.</li><li>In Part 3 (Spell it), let her say the word slowly and touch each box as she says each sound before she picks letters. Spelling a word helps her remember it for reading.</li><li>In Part 4, only first-try answers earn a star. If she misses, the word splits into sounds: have her sound it out before she taps again. Missed words come back at the end, and the list at the end shows what to practise tomorrow.</li><li>Pair this with the school's booklets on Hubbard's Cupboard (“Hap Can See”, then “I Like to Dance!”) and magnetic letters on the fridge.</li><li>Praise the sounding out, not just right answers.</li></ul>
   </section>
 </div>
 
 <script>
-const WORDS=[{"on": "c", "w": "cap", "e": "🧢"}, {"on": "m", "w": "map", "e": "🗺️"}, {"on": "n", "w": "nap", "e": "😴"}, {"on": "t", "w": "tap", "e": "🚰"}, {"on": "z", "w": "zap", "e": "⚡"}, {"on": "y", "w": "yap", "e": "🐶"}, {"on": "cl", "w": "clap", "e": "👏"}, {"on": "tr", "w": "trap", "e": "🪤"}, {"on": "sn", "w": "snap", "e": "🐊"}, {"on": "H", "w": "Hap", "e": "🐶"}];
-/* voice: pick the clearest English voice on this device, let the grown-up change it */
-let voice=null;const vsel=document.getElementById("voice");
+const C={"rimes": ["ap"], "onsets": ["c", "m", "n", "t", "z", "y", "cl", "tr", "sn", "H"], "pics": {"ham": "🍖", "jam": "🫙🍓", "ram": "🐏", "yam": "🍠", "Sam": "👦", "Pam": "👧", "clam": "🐚", "swam": "🏊", "tram": "🚋", "wham": "💥", "cap": "🧢", "map": "🗺️", "nap": "😴", "tap": "🚰", "zap": "⚡", "yap": "🐶", "clap": "👏", "trap": "🪤", "snap": "🐊", "Hap": "🐶", "rap": "🎤"}, "spell": ["cap", "map", "nap", "tap", "clap", "trap"], "spellExtra": [], "game": ["cap", "map", "nap", "tap", "zap", "clap", "trap"], "gameLen": 10, "story": [["Here is <b>Hap</b>.", "Here is Hap.", "🐶"], ["<b>Hap</b> is a pup.", "Hap is a pup.", "🐶"], ["<b>Hap</b> has a red <b>cap</b>.", "Hap has a red cap.", "🧢"], ["<b>Hap</b> has a <b>map</b>.", "Hap has a map.", "🗺️"], ["<b>Hap</b> can <b>tap</b>, <b>tap</b>, <b>tap</b>.", "Hap can tap, tap, tap.", "🐾"], ["<b>Hap</b> can <b>clap</b>, <b>clap</b>, <b>clap</b>!", "Hap can clap, clap, clap!", "👏"], ["Look! A <b>trap</b>!", "Look! A trap!", "🪤"], ["<b>Snap</b>! went the <b>trap</b>.", "Snap! went the trap.", "🪤"], ["<b>Hap</b> did not get in the <b>trap</b>.", "Hap did not get in the trap.", "🐶"], ["<b>Zap</b>! <b>Zap</b>! <b>Hap</b> ran!", "Zap! Zap! Hap ran!", "⚡"], ["<b>Hap</b> ran to his mat.", "Hap ran to his mat.", "🐶"], ["<b>Hap</b> had a <b>nap</b>.", "Hap had a nap.", "😴"], ["<b>Yap</b>! <b>Yap</b>! <b>Hap</b> is glad.", "Yap! Yap! Hap is glad.", "🐶"]], "sample1": "cap", "sample3": "cap, map, nap"};
+const $=id=>document.getElementById(id);
+const pic=w=>C.pics[w]||"⭐";
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function pop(el){el.classList.remove("pop");void el.offsetWidth;el.classList.add("pop")}
+function shake(el){el.classList.remove("shake");void el.offsetWidth;el.classList.add("shake")}
+
+/* ---------- voice ---------- */
+let voice=null;const vsel=$("voice");
 const RANK=[/natural|neural|enhanced|premium/i,/samantha|ava|allison|susan|zoe|evan|nathan/i,/google us english/i,/google uk english female|serena|karen|moira/i];
 function score(v){for(let i=0;i<RANK.length;i++)if(RANK[i].test(v.name))return i;return v.lang==="en-US"?RANK.length:RANK.length+1}
 function loadVoices(){
@@ -178,118 +225,201 @@ function loadVoices(){
   vsel.innerHTML="";
   vs.forEach(v=>{const o=document.createElement("option");o.value=v.name;o.textContent=v.name+" ("+v.lang+")";vsel.appendChild(o)});
   voice=vs.find(v=>v.name===saved)||vs[0];vsel.value=voice.name;
-  vsel.onchange=()=>{voice=vs.find(v=>v.name===vsel.value);try{localStorage.setItem("wfVoice",voice.name)}catch(e){}speak("cap")};
+  vsel.onchange=()=>{voice=vs.find(v=>v.name===vsel.value);try{localStorage.setItem("wfVoice",voice.name)}catch(e){}speak(C.sample1)};
 }
 try{loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}
-function speak(t){
+function speak(t,rate){
   try{const u=new SpeechSynthesisUtterance(t);if(voice){u.voice=voice;u.lang=voice.lang}else u.lang="en-US";
-    u.rate=.85;u.pitch=1.05;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+    u.rate=rate||.85;u.pitch=1.05;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
 }
-document.getElementById("testVoice").onclick=()=>speak("Hi! Let's read. "+"cap, map, nap");
-document.getElementById("sayAm").onclick=()=>speak("ap");
+$("testVoice").onclick=()=>speak("Hi! Let's read. "+C.sample3);
 
-/* builder */
-const tiles=document.getElementById("tiles"),bword=document.getElementById("bword"),bpic=document.getElementById("bpic");
-let current=null;
-WORDS.forEach(x=>{
-  const b=document.createElement("button");b.className="tile";b.textContent=x.on;b.setAttribute("aria-pressed","false");b.dataset.w=x.w;
-  b.onclick=()=>{
-    tiles.querySelectorAll(".tile").forEach(t=>t.setAttribute("aria-pressed","false"));
-    b.setAttribute("aria-pressed","true");current=x;
-    bword.innerHTML=x.on+'<span class="on">ap</span>';
-    bword.classList.remove("pop");void bword.offsetWidth;bword.classList.add("pop");
-    if(showPics){bpic.textContent=x.e;speak(x.w);markDone(x.w);}else{bpic.textContent="❓";}
-  };
-  tiles.appendChild(b);
+/* ---------- picture switch ---------- */
+let showPics=false;
+try{showPics=localStorage.getItem("wfPics")==="show"}catch(e){}
+
+/* ---------- Part 1: houses ---------- */
+C.rimes.forEach(r=>{
+  const col=document.createElement("div");col.className="housecol";
+  col.innerHTML='<div class="house" aria-hidden="true"><div class="roof"></div><div class="walls">'+r+'</div></div>';
+  const b=document.createElement("button");b.className="say";b.textContent="🔊 Hear “"+r+"”";b.onclick=()=>speak(r);
+  col.appendChild(b);$("houses").appendChild(col);
 });
-document.getElementById("sayBuilt").onclick=()=>{
-  if(!current){speak("pick a sound first");return;}
-  bpic.textContent=current.e;bpic.classList.remove("pop");void bpic.offsetWidth;bpic.classList.add("pop");
-  speak(current.w);markDone(current.w);
+
+/* ---------- Part 2: builder ---------- */
+const MIX=C.rimes.length>1;
+let onset=null,rime=MIX?null:C.rimes[0];
+const tiles=$("tiles"),rimesBox=$("rimes"),bword=$("bword"),bpic=$("bpic");
+$("bhint").innerHTML=MIX?"Pick a first sound <b>and</b> an ending. Read it out loud, then tap <b>Check it</b>."
+  :"Pick a first sound. It jumps in front of <b>"+C.rimes[0]+"</b>! Read it out loud, then tap <b>Check it</b>.";
+if(MIX){$("onLabel").hidden=false;$("rimeLabel").hidden=false;rimesBox.hidden=false;}
+const combos=[];C.onsets.forEach(o=>C.rimes.forEach(r=>{if(C.pics[o+r])combos.push(o+r)}));
+function curWord(){return onset&&rime?onset+rime:null}
+function drawWord(){
+  bword.innerHTML=(onset||"_")+'<span class="on">'+(rime||"__")+'</span>';pop(bword);
+  const w=curWord();
+  if(!w){bpic.textContent="🏠";return}
+  if(showPics){bpic.textContent=pic(w);speak(w);markDone(w);}else bpic.textContent="❓";
+}
+function pressRow(box,btn){box.querySelectorAll(".tile").forEach(t=>t.setAttribute("aria-pressed","false"));btn.setAttribute("aria-pressed","true")}
+C.onsets.forEach(o=>{
+  const b=document.createElement("button");b.className="tile";b.textContent=o;b.setAttribute("aria-pressed","false");b.dataset.o=o;
+  b.onclick=()=>{pressRow(tiles,b);onset=o;drawWord()};tiles.appendChild(b);
+});
+if(MIX)C.rimes.forEach(r=>{
+  const b=document.createElement("button");b.className="tile rime";b.textContent=r;b.setAttribute("aria-pressed","false");
+  b.onclick=()=>{pressRow(rimesBox,b);rime=r;drawWord()};rimesBox.appendChild(b);
+});
+bword.innerHTML=MIX?'_<span class="on">__</span>':'_<span class="on">'+C.rimes[0]+'</span>';
+$("sayBuilt").onclick=()=>{
+  const w=curWord();
+  if(!w){speak(MIX?"pick a first sound and an ending":"pick a sound first");return}
+  bpic.textContent=pic(w);pop(bpic);speak(w);markDone(w);
 };
 const doneWords=new Set();
 function markDone(w){
   doneWords.add(w);
-  tiles.querySelectorAll(".tile").forEach(t=>{if(doneWords.has(t.dataset.w))t.classList.add("done")});
+  tiles.querySelectorAll(".tile").forEach(t=>{if(C.rimes.every(r=>!C.pics[t.dataset.o+r]||doneWords.has(t.dataset.o+r)))t.classList.add("done")});
   updB();
 }
-function updB(){
-  const n=doneWords.size,all=WORDS.length;
-  document.getElementById("bprog").textContent=n===all?"⭐ All "+all+" words read! Great reading!":"⭐ "+n+" of "+all+" words read";
-}
+function updB(){const n=doneWords.size,all=combos.length;
+  $("bprog").textContent=n===all?"⭐ All "+all+" words read! Great reading!":"⭐ "+n+" of "+all+" words read";}
 updB();
 
-/* game */
-const GAME=WORDS.filter(x=>!["Hap", "yap", "snap"].includes(x.w));
-const GAME_LEN=12;
-let order=[],qi=0,stars=0,locked=false;
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+/* ---------- Part 3: spelling ---------- */
+let spellList=[],si=0,spellStars=0,typed=[],spellMistake=false,spellLocked=false;
+const POOL="bdfgmnpstl".split("");
+function newSpell(){spellList=shuffle([...C.spell]);si=0;spellStars=0;$("spellStars").textContent="";askSpell()}
+function askSpell(){
+  const w=spellList[si];typed=[];spellMistake=false;spellLocked=false;
+  $("sprogSpell").textContent="Word "+(si+1)+" of "+spellList.length;
+  $("spellPic").textContent="";$("spellMsg").textContent="";
+  const letters=w.split("");
+  const extras=shuffle(POOL.filter(l=>!letters.includes(l)&&!(C.spellExtra||[]).includes(l))).slice(0,2);
+  (C.spellExtra||[]).forEach(l=>{if(!letters.includes(l))extras.push(l)});
+  const box=$("letters");box.innerHTML="";
+  shuffle([...letters,...extras]).forEach(l=>{
+    const b=document.createElement("button");b.className="tile";b.textContent=l;
+    b.onclick=()=>{if(spellLocked||typed.length>=letters.length)return;typed.push({l,b});b.disabled=true;drawSlots()};
+    box.appendChild(b);
+  });
+  drawSlots();setTimeout(()=>speak(w),300);
+}
+function drawSlots(state){
+  const w=spellList[si],box=$("slots");box.innerHTML="";
+  for(let i=0;i<w.length;i++){
+    const s=document.createElement("div");s.className="slot";
+    if(typed[i]){s.textContent=typed[i].l;s.classList.add("filled");
+      if(state)s.classList.add(typed[i].l===w[i]?"ok":"bad");}
+    box.appendChild(s);
+  }
+}
+$("hearSpell").onclick=()=>speak(spellList[si],.7);
+$("undo").onclick=()=>{if(spellLocked)return;const t=typed.pop();if(t)t.b.disabled=false;drawSlots()};
+$("checkSpell").onclick=()=>{
+  if(spellLocked)return;
+  const w=spellList[si];
+  if(typed.length<w.length){$("spellMsg").textContent="Fill all the boxes!";shake($("slots"));return}
+  const ok=typed.every((t,i)=>t.l===w[i]);
+  drawSlots(true);
+  if(ok){
+    spellLocked=true;
+    if(!spellMistake){spellStars++;$("spellStars").textContent="⭐".repeat(spellStars)}
+    $("spellMsg").textContent=spellMistake?"You fixed it! "+w+"!":"Yes! "+w+"!";
+    $("spellPic").textContent=pic(w);pop($("spellPic"));speak(w);
+    setTimeout(()=>{si++;if(si<spellList.length)askSpell();else finishSpell()},1800);
+  }else{
+    spellMistake=true;shake($("slots"));
+    $("spellMsg").textContent="Almost! The pink letter is not right. Listen again.";
+    setTimeout(()=>{
+      // keep the correct letters up to the first mistake, give the rest back
+      let k=0;while(k<typed.length&&typed[k].l===w[k])k++;
+      typed.slice(k).forEach(t=>t.b.disabled=false);typed=typed.slice(0,k);
+      drawSlots();speak(w,.6);
+    },1500);
+  }
+};
+function finishSpell(){
+  $("sprogSpell").textContent="";$("slots").innerHTML="";$("letters").innerHTML="";
+  $("spellPic").textContent="🏆";
+  $("spellMsg").textContent="You spelled "+spellList.length+" words! "+spellStars+" stars!";
+  const b=document.createElement("button");b.className="say";b.textContent="Spell again";b.onclick=newSpell;$("letters").appendChild(b);
+}
+newSpell();
+
+/* ---------- Part 4: picture game ---------- */
+let order=[],qi=0,stars=0,locked=false,firstTry=true,missed=[],requeued=new Set();
 function newRound(){
-  order=shuffle([...GAME]);
-  shuffle([...GAME]).slice(0,GAME_LEN-GAME.length).forEach(w=>order.splice(Math.floor(Math.random()*(order.length+1)),0,w));
+  const G=C.game;order=shuffle([...G]);
+  shuffle([...G]).slice(0,Math.max(0,C.gameLen-G.length)).forEach(w=>order.splice(Math.floor(Math.random()*(order.length+1)),0,w));
   for(let i=1;i<order.length;i++)if(order[i]===order[i-1]){const j=(i+2)%order.length;[order[i],order[j]]=[order[j],order[i]]}
-  qi=0;stars=0;document.getElementById("stars").textContent="";ask();
+  qi=0;stars=0;missed=[];requeued=new Set();$("stars").textContent="";$("practice").textContent="";ask();
+}
+function distractors(q){
+  // look-alike words first (same start, other ending), so she has to read to the end
+  const twins=C.game.filter(w=>w!==q&&w.length===q.length&&w.slice(0,-1)===q.slice(0,-1));
+  const rest=shuffle(C.game.filter(w=>w!==q&&!twins.includes(w)));
+  return [...twins,...rest].slice(0,2);
 }
 function ask(){
-  locked=false;const q=order[qi];
-  document.getElementById("qprog").textContent="Word "+(qi+1)+" of "+order.length;
-  document.getElementById("qpic").textContent=q.w;
-  document.getElementById("msg").textContent="";
-  const opts=shuffle([q,...shuffle(GAME.filter(x=>x!==q)).slice(0,2)]);
-  const box=document.getElementById("choices");box.innerHTML="";
-  opts.forEach(o=>{
-    const b=document.createElement("button");b.className="choice";b.textContent=o.e;b.setAttribute("aria-label","picture "+(opts.indexOf(o)+1));
+  locked=false;firstTry=true;const q=order[qi];
+  $("qprog").textContent="Word "+(qi+1)+" of "+order.length;
+  $("qpic").textContent=q;$("msg").textContent="";
+  const box=$("choices");box.innerHTML="";
+  shuffle([q,...distractors(q)]).forEach(o=>{
+    const b=document.createElement("button");b.className="choice";b.textContent=pic(o);b.setAttribute("aria-label","picture");
     b.onclick=()=>{
-      if(locked)return;
-      if(o===q){locked=true;b.classList.add("right");stars++;
-        document.getElementById("stars").textContent="⭐".repeat(stars);
-        document.getElementById("msg").textContent="Yes! "+q.w+"!";speak(q.w);
-        setTimeout(()=>{qi++; if(qi<order.length)ask(); else finish();},1400);
-      }else{b.classList.add("wrong");document.getElementById("msg").textContent="Try again!";}
+      if(locked||b.disabled)return;
+      if(o===q){
+        locked=true;b.classList.add("right");$("qpic").textContent=q;
+        if(firstTry){stars++;$("stars").textContent="⭐".repeat(stars);$("msg").textContent="Yes! "+q+"!"}
+        else $("msg").textContent="You got it! "+q+"!";
+        speak(q);
+        setTimeout(()=>{qi++;if(qi<order.length)ask();else finish()},1500);
+      }else{
+        firstTry=false;b.classList.add("wrong");b.disabled=true;
+        if(!missed.includes(q))missed.push(q);
+        if(!requeued.has(q)){requeued.add(q);order.push(q)}
+        $("qpic").innerHTML='<span class="seg">'+q.split("").join("·")+'</span>';
+        $("msg").textContent="Sound it out, then try again!";
+        $("qprog").textContent="Word "+(qi+1)+" of "+order.length;
+      }
     };
     box.appendChild(b);
   });
 }
 function finish(){
-  document.getElementById("qpic").textContent="🏆";
-  document.getElementById("qprog").textContent="";
-  document.getElementById("msg").textContent="You did it! "+stars+" stars!";
-  const box=document.getElementById("choices");box.innerHTML="";
+  $("qpic").textContent="🏆";$("qprog").textContent="";
+  $("msg").textContent="You did it! "+stars+" stars!";
+  $("practice").textContent=missed.length?"Words to practice: "+missed.join(", "):"No mistakes!";
+  const box=$("choices");box.innerHTML="";
   const b=document.createElement("button");b.className="choice";b.style.gridColumn="1 / -1";b.textContent="Play again";b.style.fontSize="1.6rem";b.onclick=newRound;box.appendChild(b);
 }
 newRound();
 
-/* story */
-const STORY=[["Here is <b>Hap</b>.", "Here is Hap.", "🐶"], ["<b>Hap</b> is a pup.", "Hap is a pup.", "🐶"], ["<b>Hap</b> has a red <b>cap</b>.", "Hap has a red cap.", "🧢"], ["<b>Hap</b> has a <b>map</b>.", "Hap has a map.", "🗺️"], ["<b>Hap</b> can <b>tap</b>, <b>tap</b>, <b>tap</b>.", "Hap can tap, tap, tap.", "🐾"], ["<b>Hap</b> can <b>clap</b>, <b>clap</b>, <b>clap</b>!", "Hap can clap, clap, clap!", "👏"], ["Look! A <b>trap</b>!", "Look! A trap!", "🪤"], ["<b>Snap</b>! went the <b>trap</b>.", "Snap! went the trap.", "🪤"], ["<b>Hap</b> did not get in the <b>trap</b>.", "Hap did not get in the trap.", "🐶"], ["<b>Zap</b>! <b>Zap</b>! <b>Hap</b> ran!", "Zap! Zap! Hap ran!", "⚡"], ["<b>Hap</b> ran to his mat.", "Hap ran to his mat.", "🐶"], ["<b>Hap</b> had a <b>nap</b>.", "Hap had a nap.", "😴"], ["<b>Yap</b>! <b>Yap</b>! <b>Hap</b> is glad.", "Yap! Yap! Hap is glad.", "🐶"]];
-const readLines=new Set();
-function updS(){
-  const n=readLines.size,all=STORY.length;
-  document.getElementById("sprog").textContent=n===all?"📖 The end! You read the whole story!":"📖 "+n+" of "+all+" lines read";
-}
-updS();
-const st=document.getElementById("story");
-STORY.forEach(([h,t,e])=>{
+/* ---------- Part 5: story ---------- */
+const st=$("story"),readLines=new Set();
+function updS(){const n=readLines.size,all=C.story.length;
+  $("sprog").textContent=n===all?"📖 The end! You read the whole story!":"📖 "+n+" of "+all+" lines read";}
+C.story.forEach(([h,t,e])=>{
   const b=document.createElement("button");b.className="line";b.dataset.e=e;
   b.innerHTML='<span class="e" aria-hidden="true"></span><span>'+h+'</span>';
-  b.onclick=()=>{const s=b.querySelector(".e");s.textContent=e;s.classList.remove("pop");void s.offsetWidth;s.classList.add("pop");speak(t);readLines.add(t);updS();};
+  b.onclick=()=>{const s=b.querySelector(".e");s.textContent=e;pop(s);speak(t);readLines.add(t);b.dataset.read="1";updS()};
   st.appendChild(b);
 });
+updS();
 
-/* picture switch: hidden until read (default) or always shown */
-let showPics=false;
-try{showPics=localStorage.getItem("wfPics")==="show"}catch(e){}
-const pt=document.getElementById("picToggle");
+/* ---------- picture switch ---------- */
+const pt=$("picToggle");
 function applyPics(){
   pt.setAttribute("aria-pressed",showPics?"true":"false");
   pt.textContent=showPics?"👀 Always shown":"🙈 Hidden until she reads";
-  st.querySelectorAll(".line").forEach(l=>{l.querySelector(".e").textContent=showPics?l.dataset.e:"❓"});
-  if(current)bpic.textContent=showPics?current.e:"❓";
+  st.querySelectorAll(".line").forEach(l=>{l.querySelector(".e").textContent=(showPics||l.dataset.read)?l.dataset.e:"❓"});
+  const w=curWord();if(w)bpic.textContent=showPics?pic(w):"❓";
 }
-pt.onclick=()=>{showPics=!showPics;try{localStorage.setItem("wfPics",showPics?"show":"hide")}catch(e){}applyPics();};
+pt.onclick=()=>{showPics=!showPics;try{localStorage.setItem("wfPics",showPics?"show":"hide")}catch(e){}applyPics()};
 applyPics();
-</script>
 
-<script>
 if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})});}
 </script>
 </body>

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build the word family lessons.
 
-Each family below becomes <family>.html from lesson.template.html.
+Each entry in PAGES becomes <slug>.html from lesson.template.html.
 index.html becomes the menu, and sw.js gets the new file list and a new
 cache version so the iPad picks up the change.
 
@@ -11,21 +11,40 @@ import json, re, hashlib, pathlib
 
 ROOT = pathlib.Path(__file__).parent
 
-# w: the word, on: the first sound(s), e: the picture (shown after she reads)
-# nogame: words left out of the picture game (names, or pictures that don't say the word clearly)
-# story: [line with <b>family words</b>, plain text to read aloud, picture]
-FAMILIES = [
+# Pictures for every word. They only appear after she has read or spelled the word.
+PICS = {
+    "ham": "🍖", "jam": "🫙🍓", "ram": "🐏", "yam": "🍠", "Sam": "👦", "Pam": "👧",
+    "clam": "🐚", "swam": "🏊", "tram": "🚋", "wham": "💥",
+    "cap": "🧢", "map": "🗺️", "nap": "😴", "tap": "🚰", "zap": "⚡", "yap": "🐶",
+    "clap": "👏", "trap": "🪤", "snap": "🐊", "Hap": "🐶", "rap": "🎤",
+}
+
+def grown(blend, booklets=None):
+    items = [
+        "Keep it short: about 10 minutes, stop while she still wants more.",
+        f"In Part 2, have her say the first sound, then the ending, then blend them: “{blend}” Blending is the skill word families build.",
+        "In Part 3 (Spell it), let her say the word slowly and touch each box as she says each sound before she picks letters. Spelling a word helps her remember it for reading.",
+        "In Part 4, only first-try answers earn a star. If she misses, the word splits into sounds: have her sound it out before she taps again. Missed words come back at the end, and the list at the end shows what to practise tomorrow.",
+    ]
+    if booklets:
+        items.append(f"Pair this with the school's booklets on Hubbard's Cupboard ({booklets}) and magnetic letters on the fridge.")
+    items.append("Praise the sounding out, not just right answers.")
+    return "".join(f"<li>{i}</li>" for i in items)
+
+PAGES = [
     {
-        "f": "am", "stretch": "aaaa-mmm", "blend": "j… am… jam!",
-        "booklets": "“Pam and Sam”, then “Shhh!”",
-        "story_title": "Sam the Ram",
+        "slug": "am", "menu_name": "The -am family", "title": "The Am Family",
+        "h1": 'The <span class="am">-am</span> Family',
+        "lead": "All these words end the same way: <b>a</b> + <b>m</b> says <b>“am”</b>!",
+        "house_title": "Meet the family house",
+        "house_hint": "Say it with me: “aaaa-mmm… am!” Tap to hear it.",
+        "rimes": ["am"],
+        "onsets": ["h", "j", "r", "y", "S", "P", "cl", "sw", "tr", "wh"],
+        "spell": ["ham", "jam", "ram", "yam", "clam", "tram"],
+        "game": ["ham", "jam", "ram", "yam", "clam", "swam", "tram", "wham"],
+        "game_len": 10,
         "sample": ["jam", "ham, jam, ram"],
-        "words": [
-            ("h","ham","🍖"),("j","jam","🫙🍓"),("r","ram","🐏"),("y","yam","🍠"),
-            ("S","Sam","👦"),("P","Pam","👧"),("cl","clam","🐚"),("sw","swam","🏊"),
-            ("tr","tram","🚋"),("wh","wham","💥"),
-        ],
-        "nogame": ["Sam","Pam"],
+        "story_title": "Sam the Ram",
         "story": [
             ["I am <b>Sam</b>.","I am Sam.","🐏"],
             ["I am a <b>ram</b>!","I am a ram!","🐏"],
@@ -42,18 +61,21 @@ FAMILIES = [
             ["<b>Sam</b> and <b>Pam</b> had <b>jam</b>.","Sam and Pam had jam.","🫙🍓"],
             ["I am a glad <b>ram</b>!","I am a glad ram!","🐏"],
         ],
+        "grownup": grown("j… am… jam!", "“Pam and Sam”, then “Shhh!”"),
     },
     {
-        "f": "ap", "stretch": "aaaa… p", "blend": "c… ap… cap!",
-        "booklets": "“Hap Can See”, then “I Like to Dance!”",
-        "story_title": "Hap the Pup",
+        "slug": "ap", "menu_name": "The -ap family", "title": "The Ap Family",
+        "h1": 'The <span class="am">-ap</span> Family',
+        "lead": "All these words end the same way: <b>a</b> + <b>p</b> says <b>“ap”</b>!",
+        "house_title": "Meet the family house",
+        "house_hint": "Say it with me: “aaaa… p… ap!” Tap to hear it.",
+        "rimes": ["ap"],
+        "onsets": ["c", "m", "n", "t", "z", "y", "cl", "tr", "sn", "H"],
+        "spell": ["cap", "map", "nap", "tap", "clap", "trap"],
+        "game": ["cap", "map", "nap", "tap", "zap", "clap", "trap"],
+        "game_len": 10,
         "sample": ["cap", "cap, map, nap"],
-        "words": [
-            ("c","cap","🧢"),("m","map","🗺️"),("n","nap","😴"),("t","tap","🚰"),
-            ("z","zap","⚡"),("y","yap","🐶"),("cl","clap","👏"),("tr","trap","🪤"),
-            ("sn","snap","🐊"),("H","Hap","🐶"),
-        ],
-        "nogame": ["Hap","yap","snap"],
+        "story_title": "Hap the Pup",
         "story": [
             ["Here is <b>Hap</b>.","Here is Hap.","🐶"],
             ["<b>Hap</b> is a pup.","Hap is a pup.","🐶"],
@@ -69,6 +91,46 @@ FAMILIES = [
             ["<b>Hap</b> had a <b>nap</b>.","Hap had a nap.","😴"],
             ["<b>Yap</b>! <b>Yap</b>! <b>Hap</b> is glad.","Yap! Yap! Hap is glad.","🐶"],
         ],
+        "grownup": grown("c… ap… cap!", "“Hap Can See”, then “I Like to Dance!”"),
+    },
+    {
+        "slug": "mix-am-ap", "menu_name": "Mix it up: -am and -ap", "title": "Am and Ap Mix",
+        "h1": 'Mix it up! <span class="am">-am</span> <span class="am">+ -ap</span>',
+        "lead": "Look all the way to the end! Is it <b>am</b> or <b>ap</b>?",
+        "house_title": "Two family houses",
+        "house_hint": "“am” ends with your lips closed: mmm. “ap” ends with a little pop: p! Tap to hear them.",
+        "rimes": ["am", "ap"],
+        # every first sound here makes a real word with BOTH endings (ram / rap, clam / clap...)
+        "onsets": ["r", "y", "cl", "tr"],
+        "spell": ["ham", "map", "jam", "cap", "ram", "nap", "clam", "clap"],
+        "spell_extra": ["m", "p"],
+        # look-alike pairs (clam/clap, tram/trap) are offered as wrong answers first
+        "game": ["ham", "jam", "yam", "ram", "clam", "tram", "cap", "map", "nap", "tap", "clap", "trap"],
+        "game_len": 12,
+        "sample": ["clam, clap", "jam, cap, tram, trap"],
+        "story_title": "Sam and Hap",
+        "story": [
+            ["<b>Sam</b> the <b>ram</b> has a <b>cap</b>.","Sam the ram has a cap.","🐏🧢"],
+            ["<b>Hap</b> the pup has a <b>map</b>.","Hap the pup has a map.","🐶🗺️"],
+            ["<b>Sam</b> can <b>clap</b>.","Sam can clap.","👏"],
+            ["<b>Hap</b> had a <b>nap</b>.","Hap had a nap.","😴"],
+            ["Look! A <b>tram</b>!","Look! A tram!","🚋"],
+            ["Look! A <b>trap</b>!","Look! A trap!","🪤"],
+            ["<b>Snap</b>! went the <b>trap</b>.","Snap! went the trap.","🪤"],
+            ["<b>Hap</b> and <b>Sam</b> ran to the <b>tram</b>.","Hap and Sam ran to the tram.","🚋"],
+            ["<b>Pam</b> has <b>ham</b> and <b>jam</b>.","Pam has ham and jam.","👧🍖"],
+            ["Yum! <b>Sam</b> had a <b>yam</b>.","Yum! Sam had a yam.","🍠"],
+            ["<b>Yap</b>! <b>Yap</b>! <b>Hap</b> is glad.","Yap! Yap! Hap is glad.","🐶"],
+            ["<b>Clap</b>, <b>clap</b>, <b>clap</b>! The end!","Clap, clap, clap! The end!","👏"],
+        ],
+        "grownup": "".join(f"<li>{i}</li>" for i in [
+            "Use this page once she reads -am and -ap words on their own pages without much help.",
+            "This page is the real test: the ending changes, so she has to read every letter. Word pairs like clam / clap and tram / trap are there on purpose.",
+            "If she guesses the ending, point at the last letter and ask “m or p?” Let her feel it: lips stay closed for m, a little pop for p.",
+            "In Spell it, both m and p are always in the letters, so she has to listen to the end of the word.",
+            "Wrong first taps in the game come back at the end, and the list at the end shows what to practise tomorrow.",
+            "Keep it to about 10 minutes, and praise the sounding out.",
+        ]),
     },
 ]
 
@@ -76,44 +138,53 @@ def js(v):
     return json.dumps(v, ensure_ascii=False)
 
 tpl = (ROOT / "lesson.template.html").read_text()
-pages = []
-for fam in FAMILIES:
-    f = fam["f"]
-    words = [{"on": on, "w": w, "e": e} for on, w, e in fam["words"]]
-    for _, w, _ in fam["words"]:
-        assert w.lower().endswith(f), w
+for p in PAGES:
+    words = set(p["spell"]) | set(p["game"]) | {o + r for o in p["onsets"] for r in p["rimes"] if o + r in PICS}
+    for w in words:
+        assert w in PICS, (p["slug"], w)
+        assert any(w.endswith(r) for r in p["rimes"]), (p["slug"], w)
+    for o in p["onsets"]:
+        assert any(o + r in PICS for r in p["rimes"]), (p["slug"], o)
+    config = {
+        "rimes": p["rimes"], "onsets": p["onsets"], "pics": PICS,
+        "spell": p["spell"], "spellExtra": p.get("spell_extra", []),
+        "game": p["game"], "gameLen": p["game_len"], "story": p["story"],
+        "sample1": p["sample"][0], "sample3": p["sample"][1],
+    }
     out = tpl
     for k, v in {
-        "{{CAP}}": f.capitalize(), "{{F}}": f, "{{L1}}": f[0], "{{L2}}": f[1:],
-        "{{STRETCH}}": fam["stretch"], "{{BLEND}}": fam["blend"], "{{BOOKLETS}}": fam["booklets"],
-        "{{STORYTITLE}}": fam["story_title"], "{{WORDS}}": js(words), "{{NOGAME}}": js(fam["nogame"]),
-        "{{STORY}}": js(fam["story"]), "{{FQ}}": js(f),
-        "{{SAMPLE1}}": js(fam["sample"][0]), "{{SAMPLE3}}": js(fam["sample"][1]),
+        "{{TITLE}}": p["title"], "{{H1}}": p["h1"], "{{LEAD}}": p["lead"],
+        "{{HOUSETITLE}}": p["house_title"], "{{HOUSEHINT}}": p["house_hint"],
+        "{{STORYTITLE}}": p["story_title"], "{{GROWNUP}}": p["grownup"], "{{CONFIG}}": js(config),
     }.items():
         out = out.replace(k, v)
-    assert "{{" not in out, f
-    (ROOT / f"{f}.html").write_text(out)
-    pages.append(fam)
+    assert "{{" not in out, p["slug"]
+    (ROOT / f'{p["slug"]}.html').write_text(out)
 
 # Menu page: reuse the template's head and styles
-head = tpl[: tpl.index('<div class="wrap">')]
-head = head.replace("<title>The {{CAP}} Family</title>", "<title>Word Families</title>")
+head = tpl[: tpl.index("\n/* two houses")] + "\n</style>\n"
+head = head.replace("<title>{{TITLE}}</title>", "<title>Word Families</title>")
 assert "{{" not in head
-cards = "\n".join(
-    f'''    <a class="fam" href="{p["f"]}.html">
-      <span class="mini" aria-hidden="true"><span class="mroof"></span><span class="mwalls">{p["f"]}</span></span>
-      <span class="ftext"><span class="fname">The -{p["f"]} family</span>
-      <span class="fwords">{", ".join(w for _, w, _ in p["words"][:4])}…</span></span>
-    </a>''' for p in pages)
+def card(p):
+    house = "+".join(p["rimes"])
+    words = ", ".join((p["spell"])[:4])
+    return f'''    <a class="fam{' mixcard' if len(p["rimes"]) > 1 else ''}" href="{p["slug"]}.html">
+      <span class="mini" aria-hidden="true"><span class="mroof"></span><span class="mwalls">{house}</span></span>
+      <span class="ftext"><span class="fname">{p["menu_name"]}</span>
+      <span class="fwords">{words}…</span></span>
+    </a>'''
+cards = "\n".join(card(p) for p in PAGES)
 menu = head + f'''<style>
 .fam{{display:flex;align-items:center;gap:20px;background:var(--panel);border:3px solid var(--line);border-radius:28px;padding:16px 20px;color:var(--ink);text-decoration:none}}
 .fam:focus-visible{{outline:4px solid var(--butter);outline-offset:3px}}
 .fam:active{{transform:scale(.98)}}
+.mixcard{{border-color:var(--jam)}}
 .mini{{display:flex;flex-direction:column;align-items:center;flex:none}}
-.mroof{{width:0;height:0;border-left:48px solid transparent;border-right:48px solid transparent;border-bottom:28px solid var(--jam)}}
-.mwalls{{background:var(--butter);color:#1D2742;width:80px;border-radius:0 0 10px 10px;padding:6px 0;text-align:center;font-family:var(--read);font-weight:700;font-size:2rem;line-height:1.1}}
+.mroof{{width:0;height:0;border-left:52px solid transparent;border-right:52px solid transparent;border-bottom:28px solid var(--jam)}}
+.mwalls{{background:var(--butter);color:#1D2742;width:88px;border-radius:0 0 10px 10px;padding:6px 0;text-align:center;font-family:var(--read);font-weight:700;font-size:1.8rem;line-height:1.1}}
+.mixcard .mwalls{{font-size:1.25rem;padding:12px 0}}
 .ftext{{display:flex;flex-direction:column;gap:2px;min-width:0}}
-.fname{{font-family:var(--display);font-weight:800;font-size:1.7rem;line-height:1.1}}
+.fname{{font-family:var(--display);font-weight:800;font-size:1.6rem;line-height:1.15}}
 .fwords{{color:var(--soft);font-size:1.15rem}}
 .list{{display:flex;flex-direction:column;gap:16px}}
 </style>
@@ -135,7 +206,7 @@ if("serviceWorker" in navigator){{window.addEventListener("load",()=>{{navigator
 (ROOT / "index.html").write_text(menu)
 
 # Service worker: list every file, version = hash of contents so any change ships
-assets = ["index.html", "manifest.webmanifest"] + [f'{p["f"]}.html' for p in pages] \
+assets = ["index.html", "manifest.webmanifest"] + [f'{p["slug"]}.html' for p in PAGES] \
     + sorted(str(x.relative_to(ROOT)) for x in (ROOT / "icons").glob("*.png")) \
     + sorted(str(x.relative_to(ROOT)) for x in (ROOT / "fonts").glob("*.woff2"))
 h = hashlib.sha256()
@@ -146,4 +217,4 @@ sw = re.sub(r'const VERSION = "[^"]*";', f'const VERSION = "wf-{h.hexdigest()[:1
 files = ",\n".join(f'  "{a}"' for a in ["./"] + assets)
 sw = re.sub(r"const FILES = \[[\s\S]*?\];", "const FILES = [\n" + files + "\n];", sw)
 (ROOT / "sw.js").write_text(sw)
-print("built:", ", ".join(f'{p["f"]}.html' for p in pages), "+ index.html, sw.js", sw[sw.index("VERSION"):sw.index(";")])
+print("built:", ", ".join(f'{p["slug"]}.html' for p in PAGES), "+ index.html, sw.js")

@@ -41,7 +41,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--read);font-size:18p
 .wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:24px 48px;display:flex;flex-direction:column;gap:24px}
 h1,h2{font-family:var(--display);font-weight:800;text-wrap:balance;margin:0}
 h1{font-size:clamp(2.4rem,9vw,3.6rem);line-height:1.05}
-h1 .am{color:var(--jam)}
+h1 .am{color:var(--jam);white-space:nowrap}
 .back{display:inline-flex;align-self:flex-start;font-family:var(--display);color:var(--ink);text-decoration:none;background:var(--panel);border:3px solid var(--line);border-radius:999px;padding:6px 16px;font-size:1.05rem}
 .back:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
 h2{font-size:1.7rem}
@@ -97,17 +97,19 @@ button:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
   @keyframes pop{0%{transform:scale(.7)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
 }
 @media (max-width:420px){.choice{font-size:2.4rem}}
-</style>
 
+</style>
 <style>
 .fam{display:flex;align-items:center;gap:20px;background:var(--panel);border:3px solid var(--line);border-radius:28px;padding:16px 20px;color:var(--ink);text-decoration:none}
 .fam:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
 .fam:active{transform:scale(.98)}
+.mixcard{border-color:var(--jam)}
 .mini{display:flex;flex-direction:column;align-items:center;flex:none}
-.mroof{width:0;height:0;border-left:48px solid transparent;border-right:48px solid transparent;border-bottom:28px solid var(--jam)}
-.mwalls{background:var(--butter);color:#1D2742;width:80px;border-radius:0 0 10px 10px;padding:6px 0;text-align:center;font-family:var(--read);font-weight:700;font-size:2rem;line-height:1.1}
+.mroof{width:0;height:0;border-left:52px solid transparent;border-right:52px solid transparent;border-bottom:28px solid var(--jam)}
+.mwalls{background:var(--butter);color:#1D2742;width:88px;border-radius:0 0 10px 10px;padding:6px 0;text-align:center;font-family:var(--read);font-weight:700;font-size:1.8rem;line-height:1.1}
+.mixcard .mwalls{font-size:1.25rem;padding:12px 0}
 .ftext{display:flex;flex-direction:column;gap:2px;min-width:0}
-.fname{font-family:var(--display);font-weight:800;font-size:1.7rem;line-height:1.1}
+.fname{font-family:var(--display);font-weight:800;font-size:1.6rem;line-height:1.15}
 .fwords{color:var(--soft);font-size:1.15rem}
 .list{display:flex;flex-direction:column;gap:16px}
 </style>
@@ -126,6 +128,11 @@ button:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
       <span class="mini" aria-hidden="true"><span class="mroof"></span><span class="mwalls">ap</span></span>
       <span class="ftext"><span class="fname">The -ap family</span>
       <span class="fwords">cap, map, nap, tap…</span></span>
+    </a>
+    <a class="fam mixcard" href="mix-am-ap.html">
+      <span class="mini" aria-hidden="true"><span class="mroof"></span><span class="mwalls">am+ap</span></span>
+      <span class="ftext"><span class="fname">Mix it up: -am and -ap</span>
+      <span class="fwords">ham, map, jam, cap…</span></span>
     </a>
   </nav>
 </div>
