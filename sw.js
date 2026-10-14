@@ -1,10 +1,12 @@
-// Offline cache for the Am Family lesson.
-// To ship an update: change VERSION, then push. The iPad picks it up the next time it opens the app online.
-const VERSION = "am-v1";
+// Offline cache for the word family lessons.
+// VERSION and FILES are written by build.py. Run it, then push; the iPad picks up the update the next time it opens the app online.
+const VERSION = "wf-a13b788085";
 const FILES = [
   "./",
   "index.html",
   "manifest.webmanifest",
+  "am.html",
+  "ap.html",
   "icons/icon-180.png",
   "icons/icon-192.png",
   "icons/icon-512.png",
@@ -25,8 +27,8 @@ self.addEventListener("fetch", e => {
   if (req.method !== "GET") return;
   if (req.mode === "navigate") {
     e.respondWith(
-      fetch(req).then(res => { const copy = res.clone(); caches.open(VERSION).then(c => c.put("index.html", copy)); return res; })
-        .catch(() => caches.match("index.html"))
+      fetch(req).then(res => { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); return res; })
+        .catch(() => caches.match(req, { ignoreSearch: true }).then(hit => hit || caches.match("index.html")))
     );
     return;
   }
