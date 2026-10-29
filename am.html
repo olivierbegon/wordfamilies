@@ -209,31 +209,65 @@ button:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
 </div>
 
 <script>
-const C={"rimes": ["am"], "onsets": ["h", "j", "r", "y", "S", "P", "cl", "sw", "tr", "wh"], "pics": {"ham": "🍖", "jam": "🫙🍓", "ram": "🐏", "yam": "🍠", "Sam": "👦", "Pam": "👧", "clam": "🐚", "swam": "🏊", "tram": "🚋", "wham": "💥", "cap": "🧢", "map": "🗺️", "nap": "😴", "tap": "🚰", "zap": "⚡", "yap": "🐶", "clap": "👏", "trap": "🪤", "snap": "🐊", "Hap": "🐶", "rap": "🎤"}, "spell": ["ham", "jam", "ram", "yam", "clam", "tram"], "spellExtra": [], "game": ["ham", "jam", "ram", "yam", "clam", "swam", "tram", "wham"], "gameLen": 10, "story": [["I am <b>Sam</b>.", "I am Sam.", "🐏"], ["I am a <b>ram</b>!", "I am a ram!", "🐏"], ["I like <b>ham</b>.", "I like ham.", "🍖"], ["I like <b>jam</b>.", "I like jam.", "🫙🍓"], ["I like a <b>yam</b>.", "I like a yam.", "🍠"], ["Here is <b>Pam</b>.", "Here is Pam.", "👧"], ["<b>Pam</b> is in a <b>tram</b>.", "Pam is in a tram.", "🚋"], ["<b>Pam</b> has a <b>clam</b>.", "Pam has a clam.", "🐚"], ["The <b>clam</b> is for <b>Sam</b>!", "The clam is for Sam!", "🐚🐏"], ["<b>Sam</b> <b>swam</b> to <b>Pam</b>.", "Sam swam to Pam.", "🏊"], ["<b>Wham</b>! <b>Slam</b>!", "Wham! Slam!", "💥"], ["The <b>tram</b> ran!", "The tram ran!", "🚋"], ["<b>Sam</b> and <b>Pam</b> had <b>jam</b>.", "Sam and Pam had jam.", "🫙🍓"], ["I am a glad <b>ram</b>!", "I am a glad ram!", "🐏"]], "sample1": "jam", "sample3": "ham, jam, ram"};
+const C={"rimes": ["am"], "onsets": ["h", "j", "r", "y", "S", "P", "cl", "sw", "tr", "wh"], "pics": {"ham": "🍖", "jam": "🫙🍓", "ram": "🐏", "yam": "🍠", "Sam": "👦", "Pam": "👧", "clam": "🐚", "swam": "🏊", "tram": "🚋", "wham": "💥", "cap": "🧢", "map": "🗺️", "nap": "😴", "tap": "🚰", "zap": "⚡", "yap": "🐶", "clap": "👏", "trap": "🪤", "snap": "🐊", "Hap": "🐶", "rap": "🎤"}, "spell": ["ham", "jam", "ram", "yam", "clam", "tram"], "spellExtra": [], "game": ["ham", "jam", "ram", "yam", "clam", "swam", "tram", "wham"], "gameLen": 10, "story": [["I am <b>Sam</b>.", "I am Sam.", "🐏"], ["I am a <b>ram</b>!", "I am a ram!", "🐏"], ["I like <b>ham</b>.", "I like ham.", "🍖"], ["I like <b>jam</b>.", "I like jam.", "🫙🍓"], ["I like a <b>yam</b>.", "I like a yam.", "🍠"], ["Here is <b>Pam</b>.", "Here is Pam.", "👧"], ["<b>Pam</b> is in a <b>tram</b>.", "Pam is in a tram.", "🚋"], ["<b>Pam</b> has a <b>clam</b>.", "Pam has a clam.", "🐚"], ["The <b>clam</b> is for <b>Sam</b>!", "The clam is for Sam!", "🐚🐏"], ["<b>Sam</b> <b>swam</b> to <b>Pam</b>.", "Sam swam to Pam.", "🏊"], ["<b>Wham</b>! <b>Slam</b>!", "Wham! Slam!", "💥"], ["The <b>tram</b> ran!", "The tram ran!", "🚋"], ["<b>Sam</b> and <b>Pam</b> had <b>jam</b>.", "Sam and Pam had jam.", "🫙🍓"], ["I am a glad <b>ram</b>!", "I am a glad ram!", "🐏"]], "sample1": "jam", "sample3": "ham, jam, ram", "audio": {"ham": "audio/d453b3829e04.mp3", "jam": "audio/a81baa93d7d7.mp3", "ram": "audio/2623a06f5ae1.mp3", "yam": "audio/1094c109c98c.mp3", "Sam": "audio/8dd20a32d260.mp3", "Pam": "audio/d79da734ffb8.mp3", "clam": "audio/a7b008cb4ffc.mp3", "swam": "audio/ea6be724c445.mp3", "tram": "audio/82fb56be2ba0.mp3", "wham": "audio/833de08528d2.mp3", "am": "audio/39d2fe0f5ece.mp3", "slow:ham": "audio/491be91c3572.mp3", "slow:jam": "audio/6fa6e479ff23.mp3", "slow:ram": "audio/d174c2b3b1d7.mp3", "slow:yam": "audio/f871dae075ec.mp3", "slow:clam": "audio/6b507c2d5a62.mp3", "slow:tram": "audio/11a32b52cdf2.mp3", "I am Sam.": "audio/77abc6bee277.mp3", "I am a ram!": "audio/3b02f8914d01.mp3", "I like ham.": "audio/960b4eaaaad0.mp3", "I like jam.": "audio/b9233e9c33bc.mp3", "I like a yam.": "audio/3fadc3603302.mp3", "Here is Pam.": "audio/a41600d502bd.mp3", "Pam is in a tram.": "audio/a46fde9df686.mp3", "Pam has a clam.": "audio/c24e766087e7.mp3", "The clam is for Sam!": "audio/c3bb9cec41de.mp3", "Sam swam to Pam.": "audio/3824e497eb6a.mp3", "Wham! Slam!": "audio/ec1fd88b72ec.mp3", "The tram ran!": "audio/992ed0c46f1b.mp3", "Sam and Pam had jam.": "audio/282428b09882.mp3", "I am a glad ram!": "audio/154b1396d560.mp3", "Hi! Let's read. ham, jam, ram": "audio/28a5f3d8f6f9.mp3", "pick a sound first": "audio/450dbe9a74b4.mp3", "pick a first sound and an ending": "audio/e2f0b42eb4c6.mp3"}};
 const $=id=>document.getElementById(id);
 const pic=w=>C.pics[w]||"⭐";
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function pop(el){el.classList.remove("pop");void el.offsetWidth;el.classList.add("pop")}
 function shake(el){el.classList.remove("shake");void el.offsetWidth;el.classList.add("shake")}
 
-/* ---------- voice ---------- */
-let voice=null;const vsel=$("voice");
+/* ---------- voice ----------
+   Default: the built-in voice. Every word and sentence was recorded ahead of time
+   (audio/ folder, made by build.py), so it sounds the same on every device and works offline.
+   The iPad's own voices stay in the menu as a backup. */
+const AUDIO=C.audio||{};
+const BUILTIN="__builtin";
+let voice=null,useBuiltin=true;const vsel=$("voice");
 const RANK=[/natural|neural|enhanced|premium/i,/samantha|ava|allison|susan|zoe|evan|nathan/i,/google us english/i,/google uk english female|serena|karen|moira/i];
 function score(v){for(let i=0;i<RANK.length;i++)if(RANK[i].test(v.name))return i;return v.lang==="en-US"?RANK.length:RANK.length+1}
+let devVoices=[];
+function fillVoices(){
+  let saved=null;try{saved=localStorage.getItem("wfVoice2")}catch(e){}
+  vsel.innerHTML="";
+  const o=document.createElement("option");o.value=BUILTIN;o.textContent="⭐ Built-in voice (works offline)";vsel.appendChild(o);
+  devVoices.forEach(v=>{const o=document.createElement("option");o.value=v.name;o.textContent="iPad voice: "+v.name+" ("+v.lang+")";vsel.appendChild(o)});
+  const dv=devVoices.find(v=>v.name===saved);
+  if(dv){voice=dv;useBuiltin=false;vsel.value=dv.name}else{useBuiltin=true;voice=devVoices[0]||null;vsel.value=BUILTIN}
+}
 function loadVoices(){
   let vs=[];try{vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang));}catch(e){}
-  if(!vs.length)return;
-  vs.sort((a,b)=>score(a)-score(b));
-  let saved=null;try{saved=localStorage.getItem("wfVoice")}catch(e){}
-  vsel.innerHTML="";
-  vs.forEach(v=>{const o=document.createElement("option");o.value=v.name;o.textContent=v.name+" ("+v.lang+")";vsel.appendChild(o)});
-  voice=vs.find(v=>v.name===saved)||vs[0];vsel.value=voice.name;
-  vsel.onchange=()=>{voice=vs.find(v=>v.name===vsel.value);try{localStorage.setItem("wfVoice",voice.name)}catch(e){}speak(C.sample1)};
+  vs.sort((a,b)=>score(a)-score(b));devVoices=vs;fillVoices();
 }
+vsel.onchange=()=>{
+  if(vsel.value===BUILTIN){useBuiltin=true;try{localStorage.removeItem("wfVoice2")}catch(e){}}
+  else{useBuiltin=false;voice=devVoices.find(v=>v.name===vsel.value)||voice;try{localStorage.setItem("wfVoice2",vsel.value)}catch(e){}}
+  speak(C.sample1);
+};
+fillVoices();
 try{loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}
-function speak(t,rate){
+
+/* Web Audio: iPads only allow sound after a tap, so the first tap anywhere unlocks it */
+let actx=null,current=null;const buffers={};
+function unlockAudio(){
+  try{if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();if(actx.state!=="running")actx.resume();}catch(e){}
+}
+["pointerdown","touchend","click"].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
+async function playFile(f){
+  unlockAudio();if(!actx)throw new Error("no audio");
+  let buf=buffers[f];
+  if(!buf){const data=await (await fetch(f)).arrayBuffer();buf=buffers[f]=await new Promise((ok,bad)=>actx.decodeAudioData(data,ok,bad));}
+  if(current)try{current.stop()}catch(e){}
+  const src=actx.createBufferSource();src.buffer=buf;src.connect(actx.destination);src.start();current=src;
+}
+function deviceSpeak(t,rate){
   try{const u=new SpeechSynthesisUtterance(t);if(voice){u.voice=voice;u.lang=voice.lang}else u.lang="en-US";
     u.rate=rate||.85;u.pitch=1.05;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+}
+function speak(t,rate){
+  const slow=rate&&rate<.8;
+  const f=(slow&&AUDIO["slow:"+t])||AUDIO[t];
+  if(useBuiltin&&f){try{speechSynthesis.cancel()}catch(e){}playFile(f).catch(()=>deviceSpeak(t,rate));return}
+  deviceSpeak(t,rate);
 }
 $("testVoice").onclick=()=>speak("Hi! Let's read. "+C.sample3);
 

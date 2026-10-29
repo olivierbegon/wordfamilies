@@ -209,31 +209,65 @@ button:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
 </div>
 
 <script>
-const C={"rimes": ["ap"], "onsets": ["c", "m", "n", "t", "z", "y", "cl", "tr", "sn", "H"], "pics": {"ham": "🍖", "jam": "🫙🍓", "ram": "🐏", "yam": "🍠", "Sam": "👦", "Pam": "👧", "clam": "🐚", "swam": "🏊", "tram": "🚋", "wham": "💥", "cap": "🧢", "map": "🗺️", "nap": "😴", "tap": "🚰", "zap": "⚡", "yap": "🐶", "clap": "👏", "trap": "🪤", "snap": "🐊", "Hap": "🐶", "rap": "🎤"}, "spell": ["cap", "map", "nap", "tap", "clap", "trap"], "spellExtra": [], "game": ["cap", "map", "nap", "tap", "zap", "clap", "trap"], "gameLen": 10, "story": [["Here is <b>Hap</b>.", "Here is Hap.", "🐶"], ["<b>Hap</b> is a pup.", "Hap is a pup.", "🐶"], ["<b>Hap</b> has a red <b>cap</b>.", "Hap has a red cap.", "🧢"], ["<b>Hap</b> has a <b>map</b>.", "Hap has a map.", "🗺️"], ["<b>Hap</b> can <b>tap</b>, <b>tap</b>, <b>tap</b>.", "Hap can tap, tap, tap.", "🐾"], ["<b>Hap</b> can <b>clap</b>, <b>clap</b>, <b>clap</b>!", "Hap can clap, clap, clap!", "👏"], ["Look! A <b>trap</b>!", "Look! A trap!", "🪤"], ["<b>Snap</b>! went the <b>trap</b>.", "Snap! went the trap.", "🪤"], ["<b>Hap</b> did not get in the <b>trap</b>.", "Hap did not get in the trap.", "🐶"], ["<b>Zap</b>! <b>Zap</b>! <b>Hap</b> ran!", "Zap! Zap! Hap ran!", "⚡"], ["<b>Hap</b> ran to his mat.", "Hap ran to his mat.", "🐶"], ["<b>Hap</b> had a <b>nap</b>.", "Hap had a nap.", "😴"], ["<b>Yap</b>! <b>Yap</b>! <b>Hap</b> is glad.", "Yap! Yap! Hap is glad.", "🐶"]], "sample1": "cap", "sample3": "cap, map, nap"};
+const C={"rimes": ["ap"], "onsets": ["c", "m", "n", "t", "z", "y", "cl", "tr", "sn", "H"], "pics": {"ham": "🍖", "jam": "🫙🍓", "ram": "🐏", "yam": "🍠", "Sam": "👦", "Pam": "👧", "clam": "🐚", "swam": "🏊", "tram": "🚋", "wham": "💥", "cap": "🧢", "map": "🗺️", "nap": "😴", "tap": "🚰", "zap": "⚡", "yap": "🐶", "clap": "👏", "trap": "🪤", "snap": "🐊", "Hap": "🐶", "rap": "🎤"}, "spell": ["cap", "map", "nap", "tap", "clap", "trap"], "spellExtra": [], "game": ["cap", "map", "nap", "tap", "zap", "clap", "trap"], "gameLen": 10, "story": [["Here is <b>Hap</b>.", "Here is Hap.", "🐶"], ["<b>Hap</b> is a pup.", "Hap is a pup.", "🐶"], ["<b>Hap</b> has a red <b>cap</b>.", "Hap has a red cap.", "🧢"], ["<b>Hap</b> has a <b>map</b>.", "Hap has a map.", "🗺️"], ["<b>Hap</b> can <b>tap</b>, <b>tap</b>, <b>tap</b>.", "Hap can tap, tap, tap.", "🐾"], ["<b>Hap</b> can <b>clap</b>, <b>clap</b>, <b>clap</b>!", "Hap can clap, clap, clap!", "👏"], ["Look! A <b>trap</b>!", "Look! A trap!", "🪤"], ["<b>Snap</b>! went the <b>trap</b>.", "Snap! went the trap.", "🪤"], ["<b>Hap</b> did not get in the <b>trap</b>.", "Hap did not get in the trap.", "🐶"], ["<b>Zap</b>! <b>Zap</b>! <b>Hap</b> ran!", "Zap! Zap! Hap ran!", "⚡"], ["<b>Hap</b> ran to his mat.", "Hap ran to his mat.", "🐶"], ["<b>Hap</b> had a <b>nap</b>.", "Hap had a nap.", "😴"], ["<b>Yap</b>! <b>Yap</b>! <b>Hap</b> is glad.", "Yap! Yap! Hap is glad.", "🐶"]], "sample1": "cap", "sample3": "cap, map, nap", "audio": {"cap": "audio/0d753f40bb4a.mp3", "map": "audio/a33ad57c1d66.mp3", "nap": "audio/f56d56a43767.mp3", "tap": "audio/238ecdd069ca.mp3", "zap": "audio/ec7dfd3c99a2.mp3", "yap": "audio/e95e802ea9ed.mp3", "clap": "audio/0836f9d01591.mp3", "trap": "audio/6772293e75ed.mp3", "snap": "audio/a5b9021241f4.mp3", "Hap": "audio/defab56258a4.mp3", "ap": "audio/3948875f7030.mp3", "slow:cap": "audio/6311a71d4144.mp3", "slow:map": "audio/814958c88d35.mp3", "slow:nap": "audio/40b437bf40af.mp3", "slow:tap": "audio/1cb95c425ae1.mp3", "slow:clap": "audio/4d28528c68c7.mp3", "slow:trap": "audio/d948de17853e.mp3", "Here is Hap.": "audio/94a634a05cf7.mp3", "Hap is a pup.": "audio/21d6ec1b2b28.mp3", "Hap has a red cap.": "audio/6c17f6b69477.mp3", "Hap has a map.": "audio/e0af6817b8a9.mp3", "Hap can tap, tap, tap.": "audio/295cc1bdf348.mp3", "Hap can clap, clap, clap!": "audio/9320bf636e31.mp3", "Look! A trap!": "audio/06b9e1150225.mp3", "Snap! went the trap.": "audio/bfd85f7f73da.mp3", "Hap did not get in the trap.": "audio/38fc8809dfd9.mp3", "Zap! Zap! Hap ran!": "audio/84737ec7b162.mp3", "Hap ran to his mat.": "audio/4d9171370542.mp3", "Hap had a nap.": "audio/d38a3166c906.mp3", "Yap! Yap! Hap is glad.": "audio/4fc8b28ec7f0.mp3", "Hi! Let's read. cap, map, nap": "audio/7c5bb977fb2a.mp3", "pick a sound first": "audio/450dbe9a74b4.mp3", "pick a first sound and an ending": "audio/e2f0b42eb4c6.mp3"}};
 const $=id=>document.getElementById(id);
 const pic=w=>C.pics[w]||"⭐";
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function pop(el){el.classList.remove("pop");void el.offsetWidth;el.classList.add("pop")}
 function shake(el){el.classList.remove("shake");void el.offsetWidth;el.classList.add("shake")}
 
-/* ---------- voice ---------- */
-let voice=null;const vsel=$("voice");
+/* ---------- voice ----------
+   Default: the built-in voice. Every word and sentence was recorded ahead of time
+   (audio/ folder, made by build.py), so it sounds the same on every device and works offline.
+   The iPad's own voices stay in the menu as a backup. */
+const AUDIO=C.audio||{};
+const BUILTIN="__builtin";
+let voice=null,useBuiltin=true;const vsel=$("voice");
 const RANK=[/natural|neural|enhanced|premium/i,/samantha|ava|allison|susan|zoe|evan|nathan/i,/google us english/i,/google uk english female|serena|karen|moira/i];
 function score(v){for(let i=0;i<RANK.length;i++)if(RANK[i].test(v.name))return i;return v.lang==="en-US"?RANK.length:RANK.length+1}
+let devVoices=[];
+function fillVoices(){
+  let saved=null;try{saved=localStorage.getItem("wfVoice2")}catch(e){}
+  vsel.innerHTML="";
+  const o=document.createElement("option");o.value=BUILTIN;o.textContent="⭐ Built-in voice (works offline)";vsel.appendChild(o);
+  devVoices.forEach(v=>{const o=document.createElement("option");o.value=v.name;o.textContent="iPad voice: "+v.name+" ("+v.lang+")";vsel.appendChild(o)});
+  const dv=devVoices.find(v=>v.name===saved);
+  if(dv){voice=dv;useBuiltin=false;vsel.value=dv.name}else{useBuiltin=true;voice=devVoices[0]||null;vsel.value=BUILTIN}
+}
 function loadVoices(){
   let vs=[];try{vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang));}catch(e){}
-  if(!vs.length)return;
-  vs.sort((a,b)=>score(a)-score(b));
-  let saved=null;try{saved=localStorage.getItem("wfVoice")}catch(e){}
-  vsel.innerHTML="";
-  vs.forEach(v=>{const o=document.createElement("option");o.value=v.name;o.textContent=v.name+" ("+v.lang+")";vsel.appendChild(o)});
-  voice=vs.find(v=>v.name===saved)||vs[0];vsel.value=voice.name;
-  vsel.onchange=()=>{voice=vs.find(v=>v.name===vsel.value);try{localStorage.setItem("wfVoice",voice.name)}catch(e){}speak(C.sample1)};
+  vs.sort((a,b)=>score(a)-score(b));devVoices=vs;fillVoices();
 }
+vsel.onchange=()=>{
+  if(vsel.value===BUILTIN){useBuiltin=true;try{localStorage.removeItem("wfVoice2")}catch(e){}}
+  else{useBuiltin=false;voice=devVoices.find(v=>v.name===vsel.value)||voice;try{localStorage.setItem("wfVoice2",vsel.value)}catch(e){}}
+  speak(C.sample1);
+};
+fillVoices();
 try{loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}
-function speak(t,rate){
+
+/* Web Audio: iPads only allow sound after a tap, so the first tap anywhere unlocks it */
+let actx=null,current=null;const buffers={};
+function unlockAudio(){
+  try{if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();if(actx.state!=="running")actx.resume();}catch(e){}
+}
+["pointerdown","touchend","click"].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
+async function playFile(f){
+  unlockAudio();if(!actx)throw new Error("no audio");
+  let buf=buffers[f];
+  if(!buf){const data=await (await fetch(f)).arrayBuffer();buf=buffers[f]=await new Promise((ok,bad)=>actx.decodeAudioData(data,ok,bad));}
+  if(current)try{current.stop()}catch(e){}
+  const src=actx.createBufferSource();src.buffer=buf;src.connect(actx.destination);src.start();current=src;
+}
+function deviceSpeak(t,rate){
   try{const u=new SpeechSynthesisUtterance(t);if(voice){u.voice=voice;u.lang=voice.lang}else u.lang="en-US";
     u.rate=rate||.85;u.pitch=1.05;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+}
+function speak(t,rate){
+  const slow=rate&&rate<.8;
+  const f=(slow&&AUDIO["slow:"+t])||AUDIO[t];
+  if(useBuiltin&&f){try{speechSynthesis.cancel()}catch(e){}playFile(f).catch(()=>deviceSpeak(t,rate));return}
+  deviceSpeak(t,rate);
 }
 $("testVoice").onclick=()=>speak("Hi! Let's read. "+C.sample3);
 

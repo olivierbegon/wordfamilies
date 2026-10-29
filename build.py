@@ -137,6 +137,64 @@ PAGES = [
 def js(v):
     return json.dumps(v, ensure_ascii=False)
 
+# ---------- Built-in voice ----------
+# Every word and sentence the pages say is recorded ahead of time with Kokoro, an open
+# neural voice (Apache 2.0), and saved as small MP3s in audio/. The iPad plays these,
+# so the voice is the same on every device and works offline.
+# Recording needs the model files (about 350 MB, not stored in the repo):
+#   https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.0
+#   kokoro-v1.0.onnx and voices-v1.0.bin in the folder named by KOKORO_DIR (default ../tts)
+#   pip install kokoro-onnx soundfile ; ffmpeg on the PATH
+# Clips already in audio/ are reused, so only new sentences get recorded.
+import os, subprocess, tempfile
+VOICE = "af_heart"      # warm US English voice
+SPEED = 0.9             # a little slower than normal speech for a beginning reader
+SLOW = 0.7              # "Hear the word" in Spell it
+AUDIO_DIR = ROOT / "audio"
+
+def spoken_texts(p):
+    """Everything this page can say: (key, text, speed)."""
+    words = [o + r for o in p["onsets"] for r in p["rimes"] if o + r in PICS]
+    words += p["spell"] + p["game"] + p["rimes"]
+    items = [(w, w, SPEED) for w in words]
+    items += [("slow:" + w, w, SLOW) for w in p["spell"]]
+    items += [(t, t, SPEED) for _, t, _ in p["story"]]
+    items += [(p["sample"][0], p["sample"][0], SPEED),
+              ("Hi! Let's read. " + p["sample"][1], "Hi! Let's read. " + p["sample"][1], SPEED),
+              ("pick a sound first", "Pick a sound first!", SPEED),
+              ("pick a first sound and an ending", "Pick a first sound and an ending!", SPEED)]
+    return items
+
+def clip_name(text, speed):
+    return "audio/" + hashlib.sha1(f"{VOICE}|{speed}|{text}".encode()).hexdigest()[:12] + ".mp3"
+
+_kokoro = None
+def record(text, speed, out):
+    global _kokoro
+    if _kokoro is None:
+        from kokoro_onnx import Kokoro
+        d = pathlib.Path(os.environ.get("KOKORO_DIR", ROOT.parent / "tts"))
+        _kokoro = Kokoro(str(d / "kokoro-v1.0.onnx"), str(d / "voices-v1.0.bin"))
+    import soundfile as sf
+    samples, rate = _kokoro.create(text, voice=VOICE, speed=speed, lang="en-us")
+    with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
+        sf.write(tmp.name, samples, rate)
+        # trim leading silence, keep a short tail, mono 48 kbps MP3
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", tmp.name,
+                        "-af", "silenceremove=start_periods=1:start_threshold=-50dB,apad=pad_dur=0.15",
+                        "-ac", "1", "-b:a", "48k", str(out)], check=True)
+
+def audio_map(p):
+    AUDIO_DIR.mkdir(exist_ok=True)
+    m = {}
+    for key, text, speed in spoken_texts(p):
+        name = clip_name(text, speed)
+        if not (ROOT / name).exists():
+            record(text, speed, ROOT / name)
+            print("  recorded:", text if speed == SPEED else text + " (slow)")
+        m[key] = name
+    return m
+
 tpl = (ROOT / "lesson.template.html").read_text()
 for p in PAGES:
     words = set(p["spell"]) | set(p["game"]) | {o + r for o in p["onsets"] for r in p["rimes"] if o + r in PICS}
@@ -150,6 +208,7 @@ for p in PAGES:
         "spell": p["spell"], "spellExtra": p.get("spell_extra", []),
         "game": p["game"], "gameLen": p["game_len"], "story": p["story"],
         "sample1": p["sample"][0], "sample3": p["sample"][1],
+        "audio": audio_map(p),
     }
     out = tpl
     for k, v in {
@@ -208,7 +267,8 @@ if("serviceWorker" in navigator){{window.addEventListener("load",()=>{{navigator
 # Service worker: list every file, version = hash of contents so any change ships
 assets = ["index.html", "manifest.webmanifest"] + [f'{p["slug"]}.html' for p in PAGES] \
     + sorted(str(x.relative_to(ROOT)) for x in (ROOT / "icons").glob("*.png")) \
-    + sorted(str(x.relative_to(ROOT)) for x in (ROOT / "fonts").glob("*.woff2"))
+    + sorted(str(x.relative_to(ROOT)) for x in (ROOT / "fonts").glob("*.woff2")) \
+    + sorted(str(x.relative_to(ROOT)) for x in AUDIO_DIR.glob("*.mp3"))
 h = hashlib.sha256()
 for a in assets:
     h.update((ROOT / a).read_bytes())

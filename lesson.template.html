@@ -216,24 +216,58 @@ function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random
 function pop(el){el.classList.remove("pop");void el.offsetWidth;el.classList.add("pop")}
 function shake(el){el.classList.remove("shake");void el.offsetWidth;el.classList.add("shake")}
 
-/* ---------- voice ---------- */
-let voice=null;const vsel=$("voice");
+/* ---------- voice ----------
+   Default: the built-in voice. Every word and sentence was recorded ahead of time
+   (audio/ folder, made by build.py), so it sounds the same on every device and works offline.
+   The iPad's own voices stay in the menu as a backup. */
+const AUDIO=C.audio||{};
+const BUILTIN="__builtin";
+let voice=null,useBuiltin=true;const vsel=$("voice");
 const RANK=[/natural|neural|enhanced|premium/i,/samantha|ava|allison|susan|zoe|evan|nathan/i,/google us english/i,/google uk english female|serena|karen|moira/i];
 function score(v){for(let i=0;i<RANK.length;i++)if(RANK[i].test(v.name))return i;return v.lang==="en-US"?RANK.length:RANK.length+1}
+let devVoices=[];
+function fillVoices(){
+  let saved=null;try{saved=localStorage.getItem("wfVoice2")}catch(e){}
+  vsel.innerHTML="";
+  const o=document.createElement("option");o.value=BUILTIN;o.textContent="⭐ Built-in voice (works offline)";vsel.appendChild(o);
+  devVoices.forEach(v=>{const o=document.createElement("option");o.value=v.name;o.textContent="iPad voice: "+v.name+" ("+v.lang+")";vsel.appendChild(o)});
+  const dv=devVoices.find(v=>v.name===saved);
+  if(dv){voice=dv;useBuiltin=false;vsel.value=dv.name}else{useBuiltin=true;voice=devVoices[0]||null;vsel.value=BUILTIN}
+}
 function loadVoices(){
   let vs=[];try{vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang));}catch(e){}
-  if(!vs.length)return;
-  vs.sort((a,b)=>score(a)-score(b));
-  let saved=null;try{saved=localStorage.getItem("wfVoice")}catch(e){}
-  vsel.innerHTML="";
-  vs.forEach(v=>{const o=document.createElement("option");o.value=v.name;o.textContent=v.name+" ("+v.lang+")";vsel.appendChild(o)});
-  voice=vs.find(v=>v.name===saved)||vs[0];vsel.value=voice.name;
-  vsel.onchange=()=>{voice=vs.find(v=>v.name===vsel.value);try{localStorage.setItem("wfVoice",voice.name)}catch(e){}speak(C.sample1)};
+  vs.sort((a,b)=>score(a)-score(b));devVoices=vs;fillVoices();
 }
+vsel.onchange=()=>{
+  if(vsel.value===BUILTIN){useBuiltin=true;try{localStorage.removeItem("wfVoice2")}catch(e){}}
+  else{useBuiltin=false;voice=devVoices.find(v=>v.name===vsel.value)||voice;try{localStorage.setItem("wfVoice2",vsel.value)}catch(e){}}
+  speak(C.sample1);
+};
+fillVoices();
 try{loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}
-function speak(t,rate){
+
+/* Web Audio: iPads only allow sound after a tap, so the first tap anywhere unlocks it */
+let actx=null,current=null;const buffers={};
+function unlockAudio(){
+  try{if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();if(actx.state!=="running")actx.resume();}catch(e){}
+}
+["pointerdown","touchend","click"].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
+async function playFile(f){
+  unlockAudio();if(!actx)throw new Error("no audio");
+  let buf=buffers[f];
+  if(!buf){const data=await (await fetch(f)).arrayBuffer();buf=buffers[f]=await new Promise((ok,bad)=>actx.decodeAudioData(data,ok,bad));}
+  if(current)try{current.stop()}catch(e){}
+  const src=actx.createBufferSource();src.buffer=buf;src.connect(actx.destination);src.start();current=src;
+}
+function deviceSpeak(t,rate){
   try{const u=new SpeechSynthesisUtterance(t);if(voice){u.voice=voice;u.lang=voice.lang}else u.lang="en-US";
     u.rate=rate||.85;u.pitch=1.05;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+}
+function speak(t,rate){
+  const slow=rate&&rate<.8;
+  const f=(slow&&AUDIO["slow:"+t])||AUDIO[t];
+  if(useBuiltin&&f){try{speechSynthesis.cancel()}catch(e){}playFile(f).catch(()=>deviceSpeak(t,rate));return}
+  deviceSpeak(t,rate);
 }
 $("testVoice").onclick=()=>speak("Hi! Let's read. "+C.sample3);
 
