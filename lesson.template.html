@@ -86,6 +86,9 @@ button:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
 .story{display:flex;flex-direction:column;gap:12px}
 .line{display:flex;align-items:center;gap:12px;text-align:left;background:var(--bg);border-radius:18px;padding:12px 16px;font-size:1.6rem}
 .line b{color:var(--jam)}
+.ltext{flex:1;min-width:0}
+.lcheck{flex:none;width:64px;height:64px;border-radius:16px;background:var(--butter);font-size:1.9rem;display:flex;align-items:center;justify-content:center}
+.lcheck.done{background:var(--leaf)}
 .line .e{font-size:2rem}
 
 /* grown-ups */
@@ -194,7 +197,7 @@ button:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
   <section class="card" aria-labelledby="s5">
     <div class="step">Part 5 · about 2 min</div>
     <h2 id="s5">Silly story: {{STORYTITLE}}</h2>
-    <p class="hint">Read one line. Then tap it to check. Find the pink words!</p>
+    <p class="hint">Read one line. Then tap ✅ at the end to check. Find the pink words!</p>
     <div class="story" id="story"></div>
     <p class="prog" id="sprog" aria-live="polite"></p>
   </section>
@@ -402,10 +405,12 @@ const st=$("story"),readLines=new Set();
 function updS(){const n=readLines.size,all=C.story.length;
   $("sprog").textContent=n===all?"📖 The end! You read the whole story!":"📖 "+n+" of "+all+" lines read";}
 C.story.forEach(([h,t,e])=>{
-  const b=document.createElement("button");b.className="line";b.dataset.e=e;
-  b.innerHTML='<span class="e" aria-hidden="true"></span><span>'+h+'</span>';
-  b.onclick=()=>{const s=b.querySelector(".e");s.textContent=e;pop(s);speak(t);readLines.add(t);b.dataset.read="1";updS()};
-  st.appendChild(b);
+  // the sentence itself is not tappable; only the check button at the end reads it out
+  const b=document.createElement("div");b.className="line";b.dataset.e=e;
+  b.innerHTML='<span class="e" aria-hidden="true"></span><span class="ltext">'+h+'</span>';
+  const c=document.createElement("button");c.className="lcheck";c.textContent="✅";c.setAttribute("aria-label","Check: "+t);
+  c.onclick=()=>{const s=b.querySelector(".e");s.textContent=e;pop(s);speak(t);readLines.add(t);b.dataset.read="1";c.classList.add("done");updS()};
+  b.appendChild(c);st.appendChild(b);
 });
 updS();
 
