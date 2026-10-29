@@ -148,8 +148,8 @@ def js(v):
 # Clips already in audio/ are reused, so only new sentences get recorded.
 import os, subprocess, tempfile
 VOICE = "af_heart"      # warm US English voice
-SPEED = 0.9             # a little slower than normal speech for a beginning reader
-SLOW = 0.7              # "Hear the word" in Spell it
+SPEED = 0.81            # slower than normal speech for a beginning reader
+SLOW = 0.63             # "Hear the word" in Spell it
 AUDIO_DIR = ROOT / "audio"
 
 def spoken_texts(p):
@@ -263,6 +263,14 @@ if("serviceWorker" in navigator){{window.addEventListener("load",()=>{{navigator
 </html>
 '''
 (ROOT / "index.html").write_text(menu)
+
+# Remove clips no page uses any more (old speed or voice, edited sentences)
+used = set()
+for f in ROOT.glob("*.html"):
+    used |= set(re.findall(r"audio/[0-9a-f]{12}\.mp3", f.read_text()))
+for f in AUDIO_DIR.glob("*.mp3"):
+    if f"audio/{f.name}" not in used:
+        f.unlink()
 
 # Service worker: list every file, version = hash of contents so any change ships
 assets = ["index.html", "manifest.webmanifest"] + [f'{p["slug"]}.html' for p in PAGES] \
