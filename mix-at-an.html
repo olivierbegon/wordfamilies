@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Word Families">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#C2185B">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<title>At and An Mix</title>
+<style>
+@font-face{font-family:"Andika";font-weight:400;font-display:swap;src:url(fonts/andika-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Andika";font-weight:700;font-display:swap;src:url(fonts/andika-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Sniglet";font-weight:400;font-display:swap;src:url(fonts/sniglet-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Sniglet";font-weight:800;font-display:swap;src:url(fonts/sniglet-latin-800-normal.woff2) format("woff2")}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<style>
+/* Layout: one column of big, chunky play stations, each a jam-jar "card" with huge tap targets */
+:root{
+  --bg:#E8F3FB; --panel:#FFFFFF; --ink:#1D2742; --soft:#5A6A8A;
+  --jam:#C2185B; --jam-ink:#FFFFFF; --butter:#FFD54F; --leaf:#2E9E6B; --line:#C9DCEB;
+  --display:"Sniglet","Comic Sans MS",system-ui,sans-serif;
+  --read:"Andika","Trebuchet MS",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141B2E; --panel:#1E2742; --ink:#F2F5FF; --soft:#A9B6D3;
+  --jam:#F0629A; --jam-ink:#1A0F16; --butter:#FFD54F; --leaf:#5FD39E; --line:#33406A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141B2E; --panel:#1E2742; --ink:#F2F5FF; --soft:#A9B6D3;
+  --jam:#F0629A; --jam-ink:#1A0F16; --butter:#FFD54F; --leaf:#5FD39E; --line:#33406A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--read);font-size:18px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:24px 48px;display:flex;flex-direction:column;gap:24px}
+h1,h2{font-family:var(--display);font-weight:800;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.4rem,9vw,3.6rem);line-height:1.05}
+h1 .am{color:var(--jam);white-space:nowrap}
+.back{display:inline-flex;align-self:flex-start;font-family:var(--display);color:var(--ink);text-decoration:none;background:var(--panel);border:3px solid var(--line);border-radius:999px;padding:6px 16px;font-size:1.05rem}
+.back:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
+h2{font-size:1.7rem}
+.lead{font-size:1.25rem;margin:0}
+.card{background:var(--panel);border:3px solid var(--line);border-radius:28px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.step{font-family:var(--display);color:var(--soft);letter-spacing:.06em;text-transform:uppercase;font-size:.85rem}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+button:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
+.say{display:inline-flex;align-items:center;gap:8px;background:var(--butter);color:#1D2742;font-family:var(--display);font-size:1.1rem;padding:10px 18px;border-radius:999px}
+
+.voicebar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:1rem;color:var(--soft)}
+.voicebar select{font:inherit;color:var(--ink);background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:6px 10px;max-width:100%;min-width:0;flex:1 1 200px}
+.say.small{font-size:.95rem;padding:6px 14px}
+
+/* the house */
+.house{display:flex;flex-direction:column;align-items:center;gap:0}
+.roof{width:0;height:0;border-left:120px solid transparent;border-right:120px solid transparent;border-bottom:70px solid var(--jam)}
+.walls{background:var(--butter);color:#1D2742;width:200px;border-radius:0 0 18px 18px;padding:18px;text-align:center;font-family:var(--read);font-weight:700;font-size:4.5rem;line-height:1}
+
+/* word builder */
+.tiles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.tile{min-width:64px;height:64px;padding:0 12px;border-radius:16px;background:var(--bg);border:3px solid var(--line);font-family:var(--read);font-weight:700;font-size:2rem}
+.tile[aria-pressed="true"]{background:var(--jam);color:var(--jam-ink);border-color:var(--jam)}
+.tile.done:not([aria-pressed="true"]){border-color:var(--leaf);color:var(--leaf)}
+.prog{font-family:var(--display);color:var(--leaf);text-align:center;margin:0;font-size:1.15rem}
+.built{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;min-height:120px}
+.word{font-family:var(--read);font-weight:700;font-size:clamp(3.5rem,14vw,5rem);line-height:1}
+.word .on{color:var(--jam)}
+.pic{font-size:4.5rem;line-height:1}
+.hint{color:var(--soft);text-align:center;margin:0}
+
+/* game */
+.qpic{font-family:var(--read);font-weight:700;font-size:clamp(3.5rem,14vw,5rem);text-align:center;line-height:1.1}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.choice{background:var(--bg);border:3px solid var(--line);border-radius:18px;padding:14px 4px;font-weight:700;font-size:3rem;line-height:1.2}
+.choice.right{background:var(--leaf);border-color:var(--leaf);color:#fff}
+.choice.wrong{opacity:.4}
+.stars{font-size:1.8rem;text-align:center;min-height:2.4rem;letter-spacing:4px}
+.msg{font-family:var(--display);font-size:1.4rem;text-align:center;min-height:2rem;margin:0}
+
+/* story */
+.story{display:flex;flex-direction:column;gap:12px}
+.line{display:flex;align-items:center;gap:12px;text-align:left;background:var(--bg);border-radius:18px;padding:12px 16px;font-size:1.6rem}
+.line b{color:var(--jam)}
+.ltext{flex:1;min-width:0}
+.lcheck{flex:none;width:64px;height:64px;border-radius:16px;background:var(--butter);font-size:1.9rem;display:flex;align-items:center;justify-content:center}
+.lcheck.done{background:var(--leaf)}
+.line .e{font-size:2rem}
+
+/* grown-ups */
+.grown{font-size:1rem;color:var(--soft)}
+.grown h2{font-size:1.2rem;color:var(--ink)}
+.grown ul{margin:0;padding-left:1.2rem;display:flex;flex-direction:column;gap:6px}
+@media (prefers-reduced-motion:no-preference){
+  .pop{animation:pop .35s ease}
+  @keyframes pop{0%{transform:scale(.7)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+}
+@media (max-width:420px){.choice{font-size:2.4rem}}
+
+/* two houses side by side on the mixed page */
+.houses{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
+.houses .roof{border-left-width:90px;border-right-width:90px;border-bottom-width:54px}
+.houses .walls{width:150px;font-size:3.6rem;padding:14px}
+.houses.four{gap:16px}
+.houses.four .roof{border-left-width:70px;border-right-width:70px;border-bottom-width:42px}
+.houses.four .walls{width:116px;font-size:2.8rem;padding:12px}
+.housecol{display:flex;flex-direction:column;align-items:center;gap:12px}
+.rowlabel{font-family:var(--display);color:var(--soft);text-align:center;margin:0;font-size:1rem}
+.tile.rime{background:var(--butter);color:#1D2742;border-color:var(--butter)}
+.tile.rime[aria-pressed="true"]{background:var(--jam);color:var(--jam-ink);border-color:var(--jam)}
+
+/* spelling */
+.slots{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.slot{width:64px;height:76px;border-radius:16px;border:3px dashed var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--read);font-weight:700;font-size:2.6rem;background:var(--bg)}
+.slot.filled{border-style:solid;border-color:var(--jam)}
+.slot.ok{border-style:solid;border-color:var(--leaf);background:var(--leaf);color:#fff}
+.slot.bad{border-style:solid;border-color:var(--jam);background:var(--jam);color:var(--jam-ink)}
+.tile:disabled{opacity:.3}
+.row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.spic{font-size:4rem;text-align:center;line-height:1.1;min-height:4.6rem}
+
+/* game: sound-it-out help */
+.qpic .seg{letter-spacing:.35em;color:var(--jam)}
+.practice{color:var(--soft);text-align:center;margin:0;font-size:1.1rem}
+@media (prefers-reduced-motion:no-preference){
+  .shake{animation:shake .4s ease}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+}
+</style>
+
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:8px">
+    <a class="back" href="./">← All word families</a>
+    <h1>Mix it up! <span class="am">-at</span> <span class="am">+ -an</span></h1>
+    <p class="lead">Look all the way to the end! Is it <b>at</b> or <b>an</b>?</p>
+    <div class="voicebar">
+      <label for="voice">Voice</label>
+      <select id="voice"></select>
+      <button class="say small" id="testVoice">🔊 Test</button>
+    </div>
+    <div class="voicebar">
+      <span>Pictures</span>
+      <button class="say small" id="picToggle" aria-pressed="false"></button>
+    </div>
+  </header>
+
+  <section class="card" aria-labelledby="s1">
+    <div class="step">Part 1</div>
+    <h2 id="s1">Two family houses</h2>
+    <div class="houses" id="houses"></div>
+    <p class="hint">“at” ends with a quick tap of your tongue: t! “an” keeps humming through your nose: nnn. Tap to hear them.</p>
+  </section>
+
+  <section class="card" aria-labelledby="s2">
+    <div class="step">Part 2 · about 2 min</div>
+    <h2 id="s2">Build a word</h2>
+    <p class="hint" id="bhint"></p>
+    <p class="rowlabel" id="onLabel" hidden>First sound</p>
+    <div class="tiles" id="tiles"></div>
+    <p class="rowlabel" id="rimeLabel" hidden>Ending</p>
+    <div class="tiles" id="rimes" hidden></div>
+    <div class="built" aria-live="polite"><span class="pic" id="bpic">🏠</span><span class="word" id="bword"></span></div>
+    <div style="text-align:center"><button class="say" id="sayBuilt">✅ Check it</button></div>
+    <p class="prog" id="bprog" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="s3">
+    <div class="step">Part 3 · about 2 min</div>
+    <h2 id="s3">Spell it!</h2>
+    <p class="hint">Listen to the word. Tap the letters to spell it.</p>
+    <p class="prog" id="sprogSpell"></p>
+    <div style="text-align:center"><button class="say" id="hearSpell">🔊 Hear the word</button></div>
+    <div class="spic" id="spellPic" aria-live="polite"></div>
+    <div class="slots" id="slots"></div>
+    <div class="tiles" id="letters"></div>
+    <div class="row">
+      <button class="say small" id="undo">⬅ Undo</button>
+      <button class="say" id="checkSpell">✅ Check</button>
+    </div>
+    <p class="msg" id="spellMsg" aria-live="polite"></p>
+    <div class="stars" id="spellStars" aria-label="stars earned"></div>
+  </section>
+
+  <section class="card" aria-labelledby="s4">
+    <div class="step">Part 4 · about 2 min</div>
+    <h2 id="s4">Which word is it?</h2>
+    <p class="hint">Read the word. Tap the picture that matches. A star for each one right on the first try!</p>
+    <p class="prog" id="qprog"></p>
+    <div class="qpic" id="qpic" aria-live="polite"></div>
+    <div class="choices" id="choices"></div>
+    <p class="msg" id="msg" aria-live="polite"></p>
+    <div class="stars" id="stars" aria-label="stars earned"></div>
+    <p class="practice" id="practice"></p>
+  </section>
+
+  <section class="card" aria-labelledby="s5">
+    <div class="step">Part 5 · about 2 min</div>
+    <h2 id="s5">Silly story: Pat, Dan and the Cat</h2>
+    <p class="hint">Read one line. Then tap ✅ at the end to check. Find the pink words!</p>
+    <div class="story" id="story"></div>
+    <p class="prog" id="sprog" aria-live="polite"></p>
+  </section>
+
+  <section class="card grown" aria-labelledby="s6">
+    <h2 id="s6">For the grown-up</h2>
+    <ul><li>Use this page once she reads -at and -an words on their own pages without much help.</li><li>This pair is harder than -am / -ap: t and n are made with the tongue in the same spot. The difference is that t is a quick tap and n hums through the nose. Let her hold her nose and try: n stops working!</li><li>Word pairs like cat / can and rat / ran are there on purpose. If she guesses, point at the last letter and ask “t or n?”</li><li>In Spell it, both t and n are always in the letters, so she has to listen to the end of the word.</li><li>Keep it to about 10 minutes, and praise the sounding out.</li></ul>
+  </section>
+</div>
+
+<script>
+const C={"rimes": ["at", "an"], "onsets": ["c", "m", "r", "p"], "pics": {"ham": "🍖", "jam": "🫙🍓", "ram": "🐏", "yam": "🍠", "Sam": "👦", "Pam": "👧", "clam": "🐚", "swam": "🏊", "tram": "🚋", "wham": "💥", "cap": "🧢", "map": "🗺️", "nap": "😴", "tap": "🚰", "zap": "⚡", "yap": "🐶", "clap": "👏", "trap": "🪤", "snap": "🐊", "Hap": "🐶", "rap": "🎤", "cat": "🐱", "hat": "🎩", "bat": "🦇", "rat": "🐀", "sat": "🪑", "mat": "🧘", "chat": "💬", "Pat": "🧒", "pat": "🫳", "can": "🥫", "fan": "🪭", "man": "👨", "pan": "🍳", "van": "🚐", "ran": "🏃", "Dan": "🧑", "Jan": "👩"}, "spell": ["cat", "can", "man", "mat", "rat", "ran", "pan", "hat"], "spellExtra": ["t", "n"], "game": ["cat", "can", "rat", "ran", "man", "pan", "hat", "bat", "fan", "van"], "gameLen": 12, "story": [["<b>Pat</b> has a <b>cat</b>.", "Pat has a cat.", "🧒🐱"], ["<b>Dan</b> has a <b>can</b>.", "Dan has a can.", "🧑🥫"], ["The <b>cat</b> <b>ran</b>!", "The cat ran!", "🐱🏃"], ["The <b>man</b> <b>ran</b>!", "The man ran!", "👨🏃"], ["The <b>cat</b> <b>sat</b> in a <b>pan</b>.", "The cat sat in a pan.", "🐱🍳"], ["The <b>cat</b> <b>sat</b> in the <b>van</b>.", "The cat sat in the van.", "🐱🚐"], ["Look! A <b>bat</b> and a <b>rat</b>!", "Look! A bat and a rat!", "🦇🐀"], ["<b>Dan</b> <b>can</b> <b>pat</b> the <b>cat</b>.", "Dan can pat the cat.", "🫳🐱"], ["<b>Pat</b> has a <b>hat</b> and a <b>fan</b>.", "Pat has a hat and a fan.", "🎩🪭"], ["The <b>cat</b> had a nap on the <b>mat</b>.", "The cat had a nap on the mat.", "😴"], ["<b>Dan</b> and <b>Pat</b> <b>can</b> clap!", "Dan and Pat can clap!", "👏"]], "sample1": "cat, can", "sample3": "cat, can, rat, ran", "audio": {"cat": "audio/56e269e62cdd.mp3", "can": "audio/8034460b487c.mp3", "mat": "audio/a2f77f792f21.mp3", "man": "audio/841ff57e8815.mp3", "rat": "audio/724834f0dd04.mp3", "ran": "audio/e9367119e5de.mp3", "pat": "audio/f26f22423b65.mp3", "pan": "audio/1ef5b889cc2a.mp3", "hat": "audio/608cfb521e0f.mp3", "bat": "audio/ec3718ac5d85.mp3", "fan": "audio/e64751e0a60b.mp3", "van": "audio/76232d845d2e.mp3", "at": "audio/adaad54488d1.mp3", "an": "audio/15733fec1092.mp3", "slow:cat": "audio/5e80a4b59741.mp3", "slow:can": "audio/4ab351c840ac.mp3", "slow:man": "audio/b066f7dfdf74.mp3", "slow:mat": "audio/43b37913be95.mp3", "slow:rat": "audio/c351d25cf57b.mp3", "slow:ran": "audio/1387d820ec84.mp3", "slow:pan": "audio/d6cb2f5aa5ba.mp3", "slow:hat": "audio/9f9f4f59f1b6.mp3", "Pat has a cat.": "audio/1c6a0d576e70.mp3", "Dan has a can.": "audio/fe79acdefc4b.mp3", "The cat ran!": "audio/1b17bd08f10a.mp3", "The man ran!": "audio/17464e6846ab.mp3", "The cat sat in a pan.": "audio/a42c63f8e4dc.mp3", "The cat sat in the van.": "audio/662500329474.mp3", "Look! A bat and a rat!": "audio/696bfda5f0af.mp3", "Dan can pat the cat.": "audio/69ad7d8f2abf.mp3", "Pat has a hat and a fan.": "audio/5485686a05a5.mp3", "The cat had a nap on the mat.": "audio/a813a964b9b8.mp3", "Dan and Pat can clap!": "audio/d76e92c7422d.mp3", "cat, can": "audio/0e1e14ff9f33.mp3", "Hi! Let's read. cat, can, rat, ran": "audio/bb514d011cac.mp3", "pick a sound first": "audio/803a771b7da9.mp3", "pick a first sound and an ending": "audio/8b1ca8f194e0.mp3"}};
+const $=id=>document.getElementById(id);
+const pic=w=>C.pics[w]||"⭐";
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function pop(el){el.classList.remove("pop");void el.offsetWidth;el.classList.add("pop")}
+function shake(el){el.classList.remove("shake");void el.offsetWidth;el.classList.add("shake")}
+
+/* ---------- voice ----------
+   Default: the built-in voice. Every word and sentence was recorded ahead of time
+   (audio/ folder, made by build.py), so it sounds the same on every device and works offline.
+   The iPad's own voices stay in the menu as a backup. */
+const AUDIO=C.audio||{};
+const BUILTIN="__builtin";
+let voice=null,useBuiltin=true;const vsel=$("voice");
+const RANK=[/natural|neural|enhanced|premium/i,/samantha|ava|allison|susan|zoe|evan|nathan/i,/google us english/i,/google uk english female|serena|karen|moira/i];
+function score(v){for(let i=0;i<RANK.length;i++)if(RANK[i].test(v.name))return i;return v.lang==="en-US"?RANK.length:RANK.length+1}
+let devVoices=[];
+function fillVoices(){
+  let saved=null;try{saved=localStorage.getItem("wfVoice2")}catch(e){}
+  vsel.innerHTML="";
+  const o=document.createElement("option");o.value=BUILTIN;o.textContent="⭐ Built-in voice (works offline)";vsel.appendChild(o);
+  devVoices.forEach(v=>{const o=document.createElement("option");o.value=v.name;o.textContent="iPad voice: "+v.name+" ("+v.lang+")";vsel.appendChild(o)});
+  const dv=devVoices.find(v=>v.name===saved);
+  if(dv){voice=dv;useBuiltin=false;vsel.value=dv.name}else{useBuiltin=true;voice=devVoices[0]||null;vsel.value=BUILTIN}
+}
+function loadVoices(){
+  let vs=[];try{vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang));}catch(e){}
+  vs.sort((a,b)=>score(a)-score(b));devVoices=vs;fillVoices();
+}
+vsel.onchange=()=>{
+  if(vsel.value===BUILTIN){useBuiltin=true;try{localStorage.removeItem("wfVoice2")}catch(e){}}
+  else{useBuiltin=false;voice=devVoices.find(v=>v.name===vsel.value)||voice;try{localStorage.setItem("wfVoice2",vsel.value)}catch(e){}}
+  speak(C.sample1);
+};
+fillVoices();
+try{loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}
+
+/* Web Audio: iPads only allow sound after a tap, so the first tap anywhere unlocks it */
+let actx=null,current=null;const buffers={};
+function unlockAudio(){
+  try{if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();if(actx.state!=="running")actx.resume();}catch(e){}
+}
+["pointerdown","touchend","click"].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
+async function playFile(f){
+  unlockAudio();if(!actx)throw new Error("no audio");
+  let buf=buffers[f];
+  if(!buf){const data=await (await fetch(f)).arrayBuffer();buf=buffers[f]=await new Promise((ok,bad)=>actx.decodeAudioData(data,ok,bad));}
+  if(current)try{current.stop()}catch(e){}
+  const src=actx.createBufferSource();src.buffer=buf;src.connect(actx.destination);src.start();current=src;
+}
+function deviceSpeak(t,rate){
+  try{const u=new SpeechSynthesisUtterance(t);if(voice){u.voice=voice;u.lang=voice.lang}else u.lang="en-US";
+    u.rate=rate||.85;u.pitch=1.05;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+}
+function speak(t,rate){
+  const slow=rate&&rate<.8;
+  const f=(slow&&AUDIO["slow:"+t])||AUDIO[t];
+  if(useBuiltin&&f){try{speechSynthesis.cancel()}catch(e){}playFile(f).catch(()=>deviceSpeak(t,rate));return}
+  deviceSpeak(t,rate);
+}
+$("testVoice").onclick=()=>speak("Hi! Let's read. "+C.sample3);
+
+/* ---------- picture switch ---------- */
+let showPics=false;
+try{showPics=localStorage.getItem("wfPics")==="show"}catch(e){}
+
+/* ---------- Part 1: houses ---------- */
+if(C.rimes.length>2)$("houses").classList.add("four");
+C.rimes.forEach(r=>{
+  const col=document.createElement("div");col.className="housecol";
+  col.innerHTML='<div class="house" aria-hidden="true"><div class="roof"></div><div class="walls">'+r+'</div></div>';
+  const b=document.createElement("button");b.className="say";b.textContent="🔊 Hear “"+r+"”";b.onclick=()=>speak(r);
+  col.appendChild(b);$("houses").appendChild(col);
+});
+
+/* ---------- Part 2: builder ---------- */
+const MIX=C.rimes.length>1;
+let onset=null,rime=MIX?null:C.rimes[0];
+const tiles=$("tiles"),rimesBox=$("rimes"),bword=$("bword"),bpic=$("bpic");
+$("bhint").innerHTML=MIX?"Pick a first sound <b>and</b> an ending. Read it out loud, then tap <b>Check it</b>."
+  :"Pick a first sound. It jumps in front of <b>"+C.rimes[0]+"</b>! Read it out loud, then tap <b>Check it</b>.";
+if(MIX){$("onLabel").hidden=false;$("rimeLabel").hidden=false;rimesBox.hidden=false;}
+const combos=[];C.onsets.forEach(o=>C.rimes.forEach(r=>{if(C.pics[o+r])combos.push(o+r)}));
+function curWord(){return onset&&rime?onset+rime:null}
+function drawWord(){
+  bword.innerHTML=(onset||"_")+'<span class="on">'+(rime||"__")+'</span>';pop(bword);
+  const w=curWord();
+  if(!w){bpic.textContent="🏠";return}
+  if(showPics){bpic.textContent=pic(w);speak(w);markDone(w);}else bpic.textContent="❓";
+}
+function pressRow(box,btn){box.querySelectorAll(".tile").forEach(t=>t.setAttribute("aria-pressed","false"));btn.setAttribute("aria-pressed","true")}
+C.onsets.forEach(o=>{
+  const b=document.createElement("button");b.className="tile";b.textContent=o;b.setAttribute("aria-pressed","false");b.dataset.o=o;
+  b.onclick=()=>{pressRow(tiles,b);onset=o;fitRimes();drawWord()};tiles.appendChild(b);
+});
+if(MIX)C.rimes.forEach(r=>{
+  const b=document.createElement("button");b.className="tile rime";b.textContent=r;b.dataset.r=r;b.setAttribute("aria-pressed","false");
+  b.onclick=()=>{pressRow(rimesBox,b);rime=r;drawWord()};rimesBox.appendChild(b);
+});
+// grey out endings that don't make a real word with the chosen first sound
+function fitRimes(){
+  if(!MIX)return;
+  rimesBox.querySelectorAll(".tile").forEach(t=>{
+    const ok=!!C.pics[onset+t.dataset.r];t.disabled=!ok;
+    if(!ok&&rime===t.dataset.r){rime=null;t.setAttribute("aria-pressed","false")}
+  });
+}
+bword.innerHTML=MIX?'_<span class="on">__</span>':'_<span class="on">'+C.rimes[0]+'</span>';
+$("sayBuilt").onclick=()=>{
+  const w=curWord();
+  if(!w){speak(MIX?"pick a first sound and an ending":"pick a sound first");return}
+  bpic.textContent=pic(w);pop(bpic);speak(w);markDone(w);
+};
+const doneWords=new Set();
+function markDone(w){
+  doneWords.add(w);
+  tiles.querySelectorAll(".tile").forEach(t=>{if(C.rimes.every(r=>!C.pics[t.dataset.o+r]||doneWords.has(t.dataset.o+r)))t.classList.add("done")});
+  updB();
+}
+function updB(){const n=doneWords.size,all=combos.length;
+  $("bprog").textContent=n===all?"⭐ All "+all+" words read! Great reading!":"⭐ "+n+" of "+all+" words read";}
+updB();
+
+/* ---------- Part 3: spelling ---------- */
+let spellList=[],si=0,spellStars=0,typed=[],spellMistake=false,spellLocked=false;
+const POOL="bdfgmnpstl".split("");
+function newSpell(){spellList=shuffle([...C.spell]);si=0;spellStars=0;$("spellStars").textContent="";askSpell()}
+function askSpell(){
+  const w=spellList[si];typed=[];spellMistake=false;spellLocked=false;
+  $("sprogSpell").textContent="Word "+(si+1)+" of "+spellList.length;
+  $("spellPic").textContent="";$("spellMsg").textContent="";
+  const letters=w.split("");
+  const extras=shuffle(POOL.filter(l=>!letters.includes(l)&&!(C.spellExtra||[]).includes(l))).slice(0,2);
+  (C.spellExtra||[]).forEach(l=>{if(!letters.includes(l))extras.push(l)});
+  const box=$("letters");box.innerHTML="";
+  shuffle([...letters,...extras]).forEach(l=>{
+    const b=document.createElement("button");b.className="tile";b.textContent=l;
+    b.onclick=()=>{if(spellLocked||typed.length>=letters.length)return;typed.push({l,b});b.disabled=true;drawSlots()};
+    box.appendChild(b);
+  });
+  drawSlots();setTimeout(()=>speak(w),300);
+}
+function drawSlots(state){
+  const w=spellList[si],box=$("slots");box.innerHTML="";
+  for(let i=0;i<w.length;i++){
+    const s=document.createElement("div");s.className="slot";
+    if(typed[i]){s.textContent=typed[i].l;s.classList.add("filled");
+      if(state)s.classList.add(typed[i].l===w[i]?"ok":"bad");}
+    box.appendChild(s);
+  }
+}
+$("hearSpell").onclick=()=>speak(spellList[si],.7);
+$("undo").onclick=()=>{if(spellLocked)return;const t=typed.pop();if(t)t.b.disabled=false;drawSlots()};
+$("checkSpell").onclick=()=>{
+  if(spellLocked)return;
+  const w=spellList[si];
+  if(typed.length<w.length){$("spellMsg").textContent="Fill all the boxes!";shake($("slots"));return}
+  const ok=typed.every((t,i)=>t.l===w[i]);
+  drawSlots(true);
+  if(ok){
+    spellLocked=true;
+    if(!spellMistake){spellStars++;$("spellStars").textContent="⭐".repeat(spellStars)}
+    $("spellMsg").textContent=spellMistake?"You fixed it! "+w+"!":"Yes! "+w+"!";
+    $("spellPic").textContent=pic(w);pop($("spellPic"));speak(w);
+    setTimeout(()=>{si++;if(si<spellList.length)askSpell();else finishSpell()},1800);
+  }else{
+    spellMistake=true;shake($("slots"));
+    $("spellMsg").textContent="Almost! The pink letter is not right. Listen again.";
+    setTimeout(()=>{
+      // keep the correct letters up to the first mistake, give the rest back
+      let k=0;while(k<typed.length&&typed[k].l===w[k])k++;
+      typed.slice(k).forEach(t=>t.b.disabled=false);typed=typed.slice(0,k);
+      drawSlots();speak(w,.6);
+    },1500);
+  }
+};
+function finishSpell(){
+  $("sprogSpell").textContent="";$("slots").innerHTML="";$("letters").innerHTML="";
+  $("spellPic").textContent="🏆";
+  $("spellMsg").textContent="You spelled "+spellList.length+" words! "+spellStars+" stars!";
+  const b=document.createElement("button");b.className="say";b.textContent="Spell again";b.onclick=newSpell;$("letters").appendChild(b);
+}
+newSpell();
+
+/* ---------- Part 4: picture game ---------- */
+let order=[],qi=0,stars=0,locked=false,firstTry=true,missed=[],requeued=new Set();
+function newRound(){
+  const G=C.game;order=shuffle([...G]);
+  shuffle([...G]).slice(0,Math.max(0,C.gameLen-G.length)).forEach(w=>order.splice(Math.floor(Math.random()*(order.length+1)),0,w));
+  for(let i=1;i<order.length;i++)if(order[i]===order[i-1]){const j=(i+2)%order.length;[order[i],order[j]]=[order[j],order[i]]}
+  qi=0;stars=0;missed=[];requeued=new Set();$("stars").textContent="";$("practice").textContent="";ask();
+}
+function distractors(q){
+  // look-alike words first (same start, other ending), so she has to read to the end
+  const twins=C.game.filter(w=>w!==q&&w.length===q.length&&w.slice(0,-1)===q.slice(0,-1));
+  const rest=shuffle(C.game.filter(w=>w!==q&&!twins.includes(w)));
+  return [...twins,...rest].slice(0,2);
+}
+function ask(){
+  locked=false;firstTry=true;const q=order[qi];
+  $("qprog").textContent="Word "+(qi+1)+" of "+order.length;
+  $("qpic").textContent=q;$("msg").textContent="";
+  const box=$("choices");box.innerHTML="";
+  shuffle([q,...distractors(q)]).forEach(o=>{
+    const b=document.createElement("button");b.className="choice";b.textContent=pic(o);b.setAttribute("aria-label","picture");
+    b.onclick=()=>{
+      if(locked||b.disabled)return;
+      if(o===q){
+        locked=true;b.classList.add("right");$("qpic").textContent=q;
+        if(firstTry){stars++;$("stars").textContent="⭐".repeat(stars);$("msg").textContent="Yes! "+q+"!"}
+        else $("msg").textContent="You got it! "+q+"!";
+        speak(q);
+        setTimeout(()=>{qi++;if(qi<order.length)ask();else finish()},1500);
+      }else{
+        firstTry=false;b.classList.add("wrong");b.disabled=true;
+        if(!missed.includes(q))missed.push(q);
+        if(!requeued.has(q)){requeued.add(q);order.push(q)}
+        $("qpic").innerHTML='<span class="seg">'+q.split("").join("·")+'</span>';
+        $("msg").textContent="Sound it out, then try again!";
+        $("qprog").textContent="Word "+(qi+1)+" of "+order.length;
+      }
+    };
+    box.appendChild(b);
+  });
+}
+function finish(){
+  $("qpic").textContent="🏆";$("qprog").textContent="";
+  $("msg").textContent="You did it! "+stars+" stars!";
+  $("practice").textContent=missed.length?"Words to practice: "+missed.join(", "):"No mistakes!";
+  const box=$("choices");box.innerHTML="";
+  const b=document.createElement("button");b.className="choice";b.style.gridColumn="1 / -1";b.textContent="Play again";b.style.fontSize="1.6rem";b.onclick=newRound;box.appendChild(b);
+}
+newRound();
+
+/* ---------- Part 5: story ---------- */
+const st=$("story"),readLines=new Set();
+function updS(){const n=readLines.size,all=C.story.length;
+  $("sprog").textContent=n===all?"📖 The end! You read the whole story!":"📖 "+n+" of "+all+" lines read";}
+C.story.forEach(([h,t,e])=>{
+  // the sentence itself is not tappable; only the check button at the end reads it out
+  const b=document.createElement("div");b.className="line";b.dataset.e=e;
+  b.innerHTML='<span class="e" aria-hidden="true"></span><span class="ltext">'+h+'</span>';
+  const c=document.createElement("button");c.className="lcheck";c.textContent="✅";c.setAttribute("aria-label","Check: "+t);
+  c.onclick=()=>{const s=b.querySelector(".e");s.textContent=e;pop(s);speak(t);readLines.add(t);b.dataset.read="1";c.classList.add("done");updS()};
+  b.appendChild(c);st.appendChild(b);
+});
+updS();
+
+/* ---------- picture switch ---------- */
+const pt=$("picToggle");
+function applyPics(){
+  pt.setAttribute("aria-pressed",showPics?"true":"false");
+  pt.textContent=showPics?"👀 Always shown":"🙈 Hidden until she reads";
+  st.querySelectorAll(".line").forEach(l=>{l.querySelector(".e").textContent=(showPics||l.dataset.read)?l.dataset.e:"❓"});
+  const w=curWord();if(w)bpic.textContent=showPics?pic(w):"❓";
+}
+pt.onclick=()=>{showPics=!showPics;try{localStorage.setItem("wfPics",showPics?"show":"hide")}catch(e){}applyPics()};
+applyPics();
+
+if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})});}
+</script>
+</body>
+</html>

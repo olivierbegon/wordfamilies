@@ -105,6 +105,9 @@ button:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
 .houses{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
 .houses .roof{border-left-width:90px;border-right-width:90px;border-bottom-width:54px}
 .houses .walls{width:150px;font-size:3.6rem;padding:14px}
+.houses.four{gap:16px}
+.houses.four .roof{border-left-width:70px;border-right-width:70px;border-bottom-width:42px}
+.houses.four .walls{width:116px;font-size:2.8rem;padding:12px}
 .housecol{display:flex;flex-direction:column;align-items:center;gap:12px}
 .rowlabel{font-family:var(--display);color:var(--soft);text-align:center;margin:0;font-size:1rem}
 .tile.rime{background:var(--butter);color:#1D2742;border-color:var(--butter)}
@@ -209,7 +212,7 @@ button:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
 </div>
 
 <script>
-const C={"rimes": ["am", "ap"], "onsets": ["r", "y", "cl", "tr"], "pics": {"ham": "🍖", "jam": "🫙🍓", "ram": "🐏", "yam": "🍠", "Sam": "👦", "Pam": "👧", "clam": "🐚", "swam": "🏊", "tram": "🚋", "wham": "💥", "cap": "🧢", "map": "🗺️", "nap": "😴", "tap": "🚰", "zap": "⚡", "yap": "🐶", "clap": "👏", "trap": "🪤", "snap": "🐊", "Hap": "🐶", "rap": "🎤"}, "spell": ["ham", "map", "jam", "cap", "ram", "nap", "clam", "clap"], "spellExtra": ["m", "p"], "game": ["ham", "jam", "yam", "ram", "clam", "tram", "cap", "map", "nap", "tap", "clap", "trap"], "gameLen": 12, "story": [["<b>Sam</b> the <b>ram</b> has a <b>cap</b>.", "Sam the ram has a cap.", "🐏🧢"], ["<b>Hap</b> the pup has a <b>map</b>.", "Hap the pup has a map.", "🐶🗺️"], ["<b>Sam</b> can <b>clap</b>.", "Sam can clap.", "👏"], ["<b>Hap</b> had a <b>nap</b>.", "Hap had a nap.", "😴"], ["Look! A <b>tram</b>!", "Look! A tram!", "🚋"], ["Look! A <b>trap</b>!", "Look! A trap!", "🪤"], ["<b>Snap</b>! went the <b>trap</b>.", "Snap! went the trap.", "🪤"], ["<b>Hap</b> and <b>Sam</b> ran to the <b>tram</b>.", "Hap and Sam ran to the tram.", "🚋"], ["<b>Pam</b> has <b>ham</b> and <b>jam</b>.", "Pam has ham and jam.", "👧🍖"], ["Yum! <b>Sam</b> had a <b>yam</b>.", "Yum! Sam had a yam.", "🍠"], ["<b>Yap</b>! <b>Yap</b>! <b>Hap</b> is glad.", "Yap! Yap! Hap is glad.", "🐶"], ["<b>Clap</b>, <b>clap</b>, <b>clap</b>! The end!", "Clap, clap, clap! The end!", "👏"]], "sample1": "clam, clap", "sample3": "jam, cap, tram, trap", "audio": {"ram": "audio/e84a88a31e91.mp3", "rap": "audio/6e6cafcef8de.mp3", "yam": "audio/dd3013207c4a.mp3", "yap": "audio/7b84a9be12d2.mp3", "clam": "audio/11e2e9de9528.mp3", "clap": "audio/bb82239974b1.mp3", "tram": "audio/48c1e4e2e6a8.mp3", "trap": "audio/d35151c600a5.mp3", "ham": "audio/25f8b47debda.mp3", "map": "audio/1fbf573a4065.mp3", "jam": "audio/6b89ca846f81.mp3", "cap": "audio/93d69c47e16f.mp3", "nap": "audio/799a73ca2d8e.mp3", "tap": "audio/21b17df32943.mp3", "am": "audio/93ca0b2941ea.mp3", "ap": "audio/36b1e890e83e.mp3", "slow:ham": "audio/da90ddacb638.mp3", "slow:map": "audio/01a25265835c.mp3", "slow:jam": "audio/c87e61dc4be9.mp3", "slow:cap": "audio/36c0500f8535.mp3", "slow:ram": "audio/7fb1df6bbab4.mp3", "slow:nap": "audio/b00e1bbc048d.mp3", "slow:clam": "audio/7648de390472.mp3", "slow:clap": "audio/e72063ed8ba5.mp3", "Sam the ram has a cap.": "audio/72a916ea689d.mp3", "Hap the pup has a map.": "audio/cd1038c52f36.mp3", "Sam can clap.": "audio/55fbc17bf8e2.mp3", "Hap had a nap.": "audio/92195f0534f6.mp3", "Look! A tram!": "audio/4992f7a5bd18.mp3", "Look! A trap!": "audio/6aefd76f6301.mp3", "Snap! went the trap.": "audio/2d9f7005aa51.mp3", "Hap and Sam ran to the tram.": "audio/cd93d3dd3784.mp3", "Pam has ham and jam.": "audio/b5bd63d1b1ec.mp3", "Yum! Sam had a yam.": "audio/03bdb0c0b5be.mp3", "Yap! Yap! Hap is glad.": "audio/56d02ec9466a.mp3", "Clap, clap, clap! The end!": "audio/e27c0d538b86.mp3", "clam, clap": "audio/897ed6c03abe.mp3", "Hi! Let's read. jam, cap, tram, trap": "audio/99cbde15f449.mp3", "pick a sound first": "audio/803a771b7da9.mp3", "pick a first sound and an ending": "audio/8b1ca8f194e0.mp3"}};
+const C={"rimes": ["am", "ap"], "onsets": ["r", "y", "cl", "tr"], "pics": {"ham": "🍖", "jam": "🫙🍓", "ram": "🐏", "yam": "🍠", "Sam": "👦", "Pam": "👧", "clam": "🐚", "swam": "🏊", "tram": "🚋", "wham": "💥", "cap": "🧢", "map": "🗺️", "nap": "😴", "tap": "🚰", "zap": "⚡", "yap": "🐶", "clap": "👏", "trap": "🪤", "snap": "🐊", "Hap": "🐶", "rap": "🎤", "cat": "🐱", "hat": "🎩", "bat": "🦇", "rat": "🐀", "sat": "🪑", "mat": "🧘", "chat": "💬", "Pat": "🧒", "pat": "🫳", "can": "🥫", "fan": "🪭", "man": "👨", "pan": "🍳", "van": "🚐", "ran": "🏃", "Dan": "🧑", "Jan": "👩"}, "spell": ["ham", "map", "jam", "cap", "ram", "nap", "clam", "clap"], "spellExtra": ["m", "p"], "game": ["ham", "jam", "yam", "ram", "clam", "tram", "cap", "map", "nap", "tap", "clap", "trap"], "gameLen": 12, "story": [["<b>Sam</b> the <b>ram</b> has a <b>cap</b>.", "Sam the ram has a cap.", "🐏🧢"], ["<b>Hap</b> the pup has a <b>map</b>.", "Hap the pup has a map.", "🐶🗺️"], ["<b>Sam</b> can <b>clap</b>.", "Sam can clap.", "👏"], ["<b>Hap</b> had a <b>nap</b>.", "Hap had a nap.", "😴"], ["Look! A <b>tram</b>!", "Look! A tram!", "🚋"], ["Look! A <b>trap</b>!", "Look! A trap!", "🪤"], ["<b>Snap</b>! went the <b>trap</b>.", "Snap! went the trap.", "🪤"], ["<b>Hap</b> and <b>Sam</b> ran to the <b>tram</b>.", "Hap and Sam ran to the tram.", "🚋"], ["<b>Pam</b> has <b>ham</b> and <b>jam</b>.", "Pam has ham and jam.", "👧🍖"], ["Yum! <b>Sam</b> had a <b>yam</b>.", "Yum! Sam had a yam.", "🍠"], ["<b>Yap</b>! <b>Yap</b>! <b>Hap</b> is glad.", "Yap! Yap! Hap is glad.", "🐶"], ["<b>Clap</b>, <b>clap</b>, <b>clap</b>! The end!", "Clap, clap, clap! The end!", "👏"]], "sample1": "clam, clap", "sample3": "jam, cap, tram, trap", "audio": {"ram": "audio/e84a88a31e91.mp3", "rap": "audio/6e6cafcef8de.mp3", "yam": "audio/dd3013207c4a.mp3", "yap": "audio/7b84a9be12d2.mp3", "clam": "audio/11e2e9de9528.mp3", "clap": "audio/bb82239974b1.mp3", "tram": "audio/48c1e4e2e6a8.mp3", "trap": "audio/d35151c600a5.mp3", "ham": "audio/25f8b47debda.mp3", "map": "audio/1fbf573a4065.mp3", "jam": "audio/6b89ca846f81.mp3", "cap": "audio/93d69c47e16f.mp3", "nap": "audio/799a73ca2d8e.mp3", "tap": "audio/21b17df32943.mp3", "am": "audio/93ca0b2941ea.mp3", "ap": "audio/36b1e890e83e.mp3", "slow:ham": "audio/da90ddacb638.mp3", "slow:map": "audio/01a25265835c.mp3", "slow:jam": "audio/c87e61dc4be9.mp3", "slow:cap": "audio/36c0500f8535.mp3", "slow:ram": "audio/7fb1df6bbab4.mp3", "slow:nap": "audio/b00e1bbc048d.mp3", "slow:clam": "audio/7648de390472.mp3", "slow:clap": "audio/e72063ed8ba5.mp3", "Sam the ram has a cap.": "audio/72a916ea689d.mp3", "Hap the pup has a map.": "audio/cd1038c52f36.mp3", "Sam can clap.": "audio/55fbc17bf8e2.mp3", "Hap had a nap.": "audio/92195f0534f6.mp3", "Look! A tram!": "audio/4992f7a5bd18.mp3", "Look! A trap!": "audio/6aefd76f6301.mp3", "Snap! went the trap.": "audio/2d9f7005aa51.mp3", "Hap and Sam ran to the tram.": "audio/cd93d3dd3784.mp3", "Pam has ham and jam.": "audio/b5bd63d1b1ec.mp3", "Yum! Sam had a yam.": "audio/03bdb0c0b5be.mp3", "Yap! Yap! Hap is glad.": "audio/56d02ec9466a.mp3", "Clap, clap, clap! The end!": "audio/e27c0d538b86.mp3", "clam, clap": "audio/897ed6c03abe.mp3", "Hi! Let's read. jam, cap, tram, trap": "audio/99cbde15f449.mp3", "pick a sound first": "audio/803a771b7da9.mp3", "pick a first sound and an ending": "audio/8b1ca8f194e0.mp3"}};
 const $=id=>document.getElementById(id);
 const pic=w=>C.pics[w]||"⭐";
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -276,6 +279,7 @@ let showPics=false;
 try{showPics=localStorage.getItem("wfPics")==="show"}catch(e){}
 
 /* ---------- Part 1: houses ---------- */
+if(C.rimes.length>2)$("houses").classList.add("four");
 C.rimes.forEach(r=>{
   const col=document.createElement("div");col.className="housecol";
   col.innerHTML='<div class="house" aria-hidden="true"><div class="roof"></div><div class="walls">'+r+'</div></div>';
@@ -301,12 +305,20 @@ function drawWord(){
 function pressRow(box,btn){box.querySelectorAll(".tile").forEach(t=>t.setAttribute("aria-pressed","false"));btn.setAttribute("aria-pressed","true")}
 C.onsets.forEach(o=>{
   const b=document.createElement("button");b.className="tile";b.textContent=o;b.setAttribute("aria-pressed","false");b.dataset.o=o;
-  b.onclick=()=>{pressRow(tiles,b);onset=o;drawWord()};tiles.appendChild(b);
+  b.onclick=()=>{pressRow(tiles,b);onset=o;fitRimes();drawWord()};tiles.appendChild(b);
 });
 if(MIX)C.rimes.forEach(r=>{
-  const b=document.createElement("button");b.className="tile rime";b.textContent=r;b.setAttribute("aria-pressed","false");
+  const b=document.createElement("button");b.className="tile rime";b.textContent=r;b.dataset.r=r;b.setAttribute("aria-pressed","false");
   b.onclick=()=>{pressRow(rimesBox,b);rime=r;drawWord()};rimesBox.appendChild(b);
 });
+// grey out endings that don't make a real word with the chosen first sound
+function fitRimes(){
+  if(!MIX)return;
+  rimesBox.querySelectorAll(".tile").forEach(t=>{
+    const ok=!!C.pics[onset+t.dataset.r];t.disabled=!ok;
+    if(!ok&&rime===t.dataset.r){rime=null;t.setAttribute("aria-pressed","false")}
+  });
+}
 bword.innerHTML=MIX?'_<span class="on">__</span>':'_<span class="on">'+C.rimes[0]+'</span>';
 $("sayBuilt").onclick=()=>{
   const w=curWord();

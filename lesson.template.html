@@ -105,6 +105,9 @@ button:focus-visible{outline:4px solid var(--butter);outline-offset:3px}
 .houses{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
 .houses .roof{border-left-width:90px;border-right-width:90px;border-bottom-width:54px}
 .houses .walls{width:150px;font-size:3.6rem;padding:14px}
+.houses.four{gap:16px}
+.houses.four .roof{border-left-width:70px;border-right-width:70px;border-bottom-width:42px}
+.houses.four .walls{width:116px;font-size:2.8rem;padding:12px}
 .housecol{display:flex;flex-direction:column;align-items:center;gap:12px}
 .rowlabel{font-family:var(--display);color:var(--soft);text-align:center;margin:0;font-size:1rem}
 .tile.rime{background:var(--butter);color:#1D2742;border-color:var(--butter)}
@@ -276,6 +279,7 @@ let showPics=false;
 try{showPics=localStorage.getItem("wfPics")==="show"}catch(e){}
 
 /* ---------- Part 1: houses ---------- */
+if(C.rimes.length>2)$("houses").classList.add("four");
 C.rimes.forEach(r=>{
   const col=document.createElement("div");col.className="housecol";
   col.innerHTML='<div class="house" aria-hidden="true"><div class="roof"></div><div class="walls">'+r+'</div></div>';
@@ -301,12 +305,20 @@ function drawWord(){
 function pressRow(box,btn){box.querySelectorAll(".tile").forEach(t=>t.setAttribute("aria-pressed","false"));btn.setAttribute("aria-pressed","true")}
 C.onsets.forEach(o=>{
   const b=document.createElement("button");b.className="tile";b.textContent=o;b.setAttribute("aria-pressed","false");b.dataset.o=o;
-  b.onclick=()=>{pressRow(tiles,b);onset=o;drawWord()};tiles.appendChild(b);
+  b.onclick=()=>{pressRow(tiles,b);onset=o;fitRimes();drawWord()};tiles.appendChild(b);
 });
 if(MIX)C.rimes.forEach(r=>{
-  const b=document.createElement("button");b.className="tile rime";b.textContent=r;b.setAttribute("aria-pressed","false");
+  const b=document.createElement("button");b.className="tile rime";b.textContent=r;b.dataset.r=r;b.setAttribute("aria-pressed","false");
   b.onclick=()=>{pressRow(rimesBox,b);rime=r;drawWord()};rimesBox.appendChild(b);
 });
+// grey out endings that don't make a real word with the chosen first sound
+function fitRimes(){
+  if(!MIX)return;
+  rimesBox.querySelectorAll(".tile").forEach(t=>{
+    const ok=!!C.pics[onset+t.dataset.r];t.disabled=!ok;
+    if(!ok&&rime===t.dataset.r){rime=null;t.setAttribute("aria-pressed","false")}
+  });
+}
 bword.innerHTML=MIX?'_<span class="on">__</span>':'_<span class="on">'+C.rimes[0]+'</span>';
 $("sayBuilt").onclick=()=>{
   const w=curWord();
