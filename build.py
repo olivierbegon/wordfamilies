@@ -306,7 +306,7 @@ def spoken_texts(p):
 PRONOUNCE = {"a": "ˈʌ"}
 
 def clip_name(text, speed):
-    key = f"{VOICE}|{speed}|{text}" + (f"|{PRONOUNCE[text]}" if text in PRONOUNCE else "")
+    key = f"{VOICE}|{speed}|stretch|{text}" + (f"|{PRONOUNCE[text]}" if text in PRONOUNCE else "")
     return "audio/" + hashlib.sha1(key.encode()).hexdigest()[:12] + ".mp3"
 
 _kokoro = None
@@ -317,15 +317,18 @@ def record(text, speed, out):
         d = pathlib.Path(os.environ.get("KOKORO_DIR", ROOT.parent / "tts"))
         _kokoro = Kokoro(str(d / "kokoro-v1.0.onnx"), str(d / "voices-v1.0.bin"))
     import soundfile as sf
+    # Record at normal speed, then slow down with ffmpeg (pitch stays the same).
+    # Asking Kokoro itself to speak slowly makes short words stutter on their first
+    # sound ("y-y-y-yam"), so the engine always runs at 1.0.
     if text in PRONOUNCE:
-        samples, rate = _kokoro.create(PRONOUNCE[text], voice=VOICE, speed=speed, lang="en-us", is_phonemes=True)
+        samples, rate = _kokoro.create(PRONOUNCE[text], voice=VOICE, speed=1.0, lang="en-us", is_phonemes=True)
     else:
-        samples, rate = _kokoro.create(text, voice=VOICE, speed=speed, lang="en-us")
+        samples, rate = _kokoro.create(text, voice=VOICE, speed=1.0, lang="en-us")
     with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
         sf.write(tmp.name, samples, rate)
         # trim leading silence, keep a short tail, mono 48 kbps MP3
         subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", tmp.name,
-                        "-af", "silenceremove=start_periods=1:start_threshold=-50dB,apad=pad_dur=0.15",
+                        "-af", f"atempo={speed},silenceremove=start_periods=1:start_threshold=-50dB,apad=pad_dur=0.15",
                         "-ac", "1", "-b:a", "48k", str(out)], check=True)
 
 def audio_map(p):
