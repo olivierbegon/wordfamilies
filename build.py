@@ -301,8 +301,13 @@ def spoken_texts(p):
               ("pick a first sound and an ending", "Pick a first sound and an ending!", SPEED)]
     return items
 
+# Words the voice would say differently on their own. "a" alone comes out as the
+# letter name "ay"; children are taught that the word "a" says "uh".
+PRONOUNCE = {"a": "ˈʌ"}
+
 def clip_name(text, speed):
-    return "audio/" + hashlib.sha1(f"{VOICE}|{speed}|{text}".encode()).hexdigest()[:12] + ".mp3"
+    key = f"{VOICE}|{speed}|{text}" + (f"|{PRONOUNCE[text]}" if text in PRONOUNCE else "")
+    return "audio/" + hashlib.sha1(key.encode()).hexdigest()[:12] + ".mp3"
 
 _kokoro = None
 def record(text, speed, out):
@@ -312,7 +317,10 @@ def record(text, speed, out):
         d = pathlib.Path(os.environ.get("KOKORO_DIR", ROOT.parent / "tts"))
         _kokoro = Kokoro(str(d / "kokoro-v1.0.onnx"), str(d / "voices-v1.0.bin"))
     import soundfile as sf
-    samples, rate = _kokoro.create(text, voice=VOICE, speed=speed, lang="en-us")
+    if text in PRONOUNCE:
+        samples, rate = _kokoro.create(PRONOUNCE[text], voice=VOICE, speed=speed, lang="en-us", is_phonemes=True)
+    else:
+        samples, rate = _kokoro.create(text, voice=VOICE, speed=speed, lang="en-us")
     with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
         sf.write(tmp.name, samples, rate)
         # trim leading silence, keep a short tail, mono 48 kbps MP3
@@ -356,6 +364,99 @@ for p in PAGES:
     assert "{{" not in out, p["slug"]
     (ROOT / f'{p["slug"]}.html').write_text(out)
 
+# ---------- Sight word lessons ----------
+# Words from the Hubbard's Cupboard fall sight word booklets (the site her school uses).
+# hearts: positions of letters that don't make their usual sound ("heart letters", learned by heart)
+# look: look-alike words offered as wrong answers in Find it
+SIGHT_PAGES = [
+    {
+        "slug": "sight-1", "menu_name": "Sight words 1", "title": "Sight Words 1",
+        "h1": 'Sight <span class="am">words</span>',
+        "lead": "Words we see all the time! Some letters don't say their usual sound, so we learn those parts <b>by heart</b>.",
+        "words": [
+            {"w": "I", "hearts": [0], "tip": "Always a big letter. It says its name.", "ex": "I can clap.", "look": ["a", "in", "it", "is"]},
+            {"w": "a", "hearts": [0], "tip": "On its own, it says “uh”.", "ex": "I see a cat.", "look": ["I", "at", "an", "as"]},
+            {"w": "the", "hearts": [2], "tip": "t and h team up: th. The e says “uh”.", "ex": "The cat ran.", "look": ["then", "he", "them", "to"]},
+            {"w": "is", "hearts": [1], "tip": "The s says “z”.", "ex": "Hap is a pup.", "look": ["in", "it", "as", "if"]},
+            {"w": "like", "hearts": [1, 3], "tip": "The quiet e at the end makes i say its name.", "ex": "I like jam.", "look": ["look", "lake", "lick", "line"]},
+            {"w": "go", "hearts": [1], "tip": "The o says its name.", "ex": "Go, van, go!", "look": ["no", "so", "got", "to"]},
+            {"w": "here", "hearts": [1, 3], "tip": "The quiet e at the end makes the first e say its name.", "ex": "Here is Hap.", "look": ["her", "there", "have", "hen"]},
+            {"w": "are", "hearts": [0, 2], "tip": "a and r say “ar”, like a pirate! The e is quiet.", "ex": "Sam and Pat are here.", "look": ["and", "ate", "arm", "art"]},
+        ],
+        "spell": ["the", "is", "like", "go", "here", "are"],
+        "find_len": 12,
+        # s: sentence with _ for the gap, a: answer, t: full sentence, not: words that would also fit
+        "gaps": [
+            {"s": "I _ jam.", "a": "like", "t": "I like jam.", "e": "🫙🍓"},
+            {"s": "_ is Hap.", "a": "here", "t": "Here is Hap.", "e": "🐶"},
+            {"s": "The cat _ in the hat.", "a": "is", "t": "The cat is in the hat.", "e": "🐱🎩"},
+            {"s": "Sam and Pat _ here.", "a": "are", "t": "Sam and Pat are here.", "e": "🐏🧒", "not": ["go"]},
+            {"s": "I can _ in the van.", "a": "go", "t": "I can go in the van.", "e": "🚐"},
+            {"s": "_ like the map.", "a": "I", "t": "I like the map.", "e": "🗺️"},
+            {"s": "Pat has _ cat.", "a": "a", "t": "Pat has a cat.", "e": "🧒🐱", "not": ["the"]},
+            {"s": "_ rat ran!", "a": "the", "t": "The rat ran!", "e": "🐀", "not": ["a"]},
+        ],
+        "story_title": "Here Is Hap",
+        "story": [
+            ("Here is Hap.", "🐶"), ("I like Hap.", "🐶"), ("Hap is a pup.", "🐶"),
+            ("Hap and Pat are here.", "🐶🧒"), ("Here is the van.", "🚐"), ("I like the van!", "🚐"),
+            ("Go, van, go!", "🚐"), ("The cat is in the van.", "🐱"), ("The rat is in the van!", "🐀"),
+            ("Go, rat, go!", "🐀"), ("Here is the map.", "🗺️"), ("I like a nap.", "😴"),
+        ],
+        "sample": ["like", "I, a, the, is."],
+        "grownup": "".join(f"<li>{i}</li>" for i in [
+            "Sight words are the words in almost every sentence. She needs to read them instantly, but she doesn't learn them by staring at the shape: she learns them like any word, by linking each sound to its letters.",
+            "So in Part 1, sound each word out together and point to the ♥ heart letters: those are the only parts that don't follow the rules she knows. Everything else she can sound out.",
+            "In Find it, wrong answers look almost the same (is / in / it). Have her check every letter, not just the first one.",
+            "In Fill the gap, if she picks a wrong word, read the sentence aloud with it: “I go jam?” She will hear that it doesn't make sense.",
+            "The story mixes today's sight words (pink) with -a family words she can already sound out (Hap, Pat, van, cat, rat, map, nap).",
+            "Five to ten minutes a day, a few days in a row, works better than one long session.",
+        ]),
+    },
+]
+
+def sight_audio(p):
+    AUDIO_DIR.mkdir(exist_ok=True)
+    items = [(x["w"], SPEED) for x in p["words"]] + [(x["w"], SLOW) for x in p["words"]]
+    items += [(x["ex"], SPEED) for x in p["words"]] + [(g["t"], SPEED) for g in p["gaps"]]
+    items += [(t, SPEED) for t, _ in p["story"]]
+    items += [(p["sample"][0], SPEED), ("Hi! Let's read. " + p["sample"][1], SPEED)]
+    m = {}
+    for text, speed in items:
+        name = clip_name(text, speed)
+        if not (ROOT / name).exists():
+            record(text, speed, ROOT / name)
+            print("  recorded:", text if speed == SPEED else text + " (slow)")
+        m[("slow:" if speed == SLOW else "") + text] = name
+    return m
+
+def mark_sight(line, words):
+    # wrap today's sight words in <b> (shown in pink)
+    ws = {w.lower() for w in words}
+    return re.sub(r"[A-Za-z]+", lambda m: f"<b>{m.group(0)}</b>" if m.group(0).lower() in ws else m.group(0), line)
+
+voice_js = tpl[tpl.index("/* ---------- voice"): tpl.index("\n", tpl.index('$("testVoice").onclick'))]
+sight_tpl = (ROOT / "sight.template.html").read_text()
+sight_head = tpl[: tpl.index("\n/* two houses")].replace("<title>{{TITLE}}</title>", "<title>{{TITLE}}</title>")
+for p in SIGHT_PAGES:
+    words = [x["w"] for x in p["words"]]
+    for g in p["gaps"]:
+        assert g["a"] in words and "_" in g["s"], g
+    for x in p["words"]:
+        assert all(0 <= i < len(x["w"]) for i in x["hearts"]), x
+    config = {
+        "words": p["words"], "spell": p["spell"], "findLen": p["find_len"], "gaps": p["gaps"],
+        "story": [[mark_sight(t, words), t, e] for t, e in p["story"]],
+        "sample1": p["sample"][0], "sample3": p["sample"][1], "audio": sight_audio(p),
+    }
+    out = sight_tpl.replace("{{HEAD}}", sight_head)
+    for k, v in {"{{TITLE}}": p["title"], "{{H1}}": p["h1"], "{{LEAD}}": p["lead"],
+                 "{{STORYTITLE}}": p["story_title"], "{{GROWNUP}}": p["grownup"],
+                 "{{VOICEJS}}": voice_js, "{{CONFIG}}": js(config)}.items():
+        out = out.replace(k, v)
+    assert "{{" not in out, p["slug"]
+    (ROOT / f'{p["slug"]}.html').write_text(out)
+
 # Menu page: reuse the template's head and styles
 head = tpl[: tpl.index("\n/* two houses")] + "\n</style>\n"
 head = head.replace("<title>{{TITLE}}</title>", "<title>Word Families</title>")
@@ -368,7 +469,14 @@ def card(p):
       <span class="ftext"><span class="fname">{p["menu_name"]}</span>
       <span class="fwords">{words}…</span></span>
     </a>'''
-cards = "\n".join(card(p) for p in PAGES)
+def sight_card(p):
+    words = ", ".join(x["w"] for x in p["words"][:5])
+    return f'''    <a class="fam sightcard" href="{p["slug"]}.html">
+      <span class="mini" aria-hidden="true"><span class="mroof"></span><span class="mwalls">♥</span></span>
+      <span class="ftext"><span class="fname">{p["menu_name"]}</span>
+      <span class="fwords">{words}…</span></span>
+    </a>'''
+cards = "\n".join(card(p) for p in PAGES) + "\n    <h2 class=\"menuhead\">Sight words</h2>\n" + "\n".join(sight_card(p) for p in SIGHT_PAGES)
 menu = head + f'''<style>
 .fam{{display:flex;align-items:center;gap:20px;background:var(--panel);border:3px solid var(--line);border-radius:28px;padding:16px 20px;color:var(--ink);text-decoration:none}}
 .fam:focus-visible{{outline:4px solid var(--butter);outline-offset:3px}}
@@ -382,6 +490,9 @@ menu = head + f'''<style>
 .fname{{font-family:var(--display);font-weight:800;font-size:1.6rem;line-height:1.15}}
 .fwords{{color:var(--soft);font-size:1.15rem}}
 .list{{display:flex;flex-direction:column;gap:16px}}
+.menuhead{{font-size:1.6rem;margin-top:12px}}
+.sightcard .mroof{{border-bottom-color:var(--leaf)}}
+.sightcard .mwalls{{color:var(--jam)}}
 </style>
 <div class="wrap">
   <header style="display:flex;flex-direction:column;gap:8px">
@@ -409,7 +520,7 @@ for f in AUDIO_DIR.glob("*.mp3"):
         f.unlink()
 
 # Service worker: list every file, version = hash of contents so any change ships
-assets = ["index.html", "manifest.webmanifest"] + [f'{p["slug"]}.html' for p in PAGES] \
+assets = ["index.html", "manifest.webmanifest"] + [f'{p["slug"]}.html' for p in PAGES + SIGHT_PAGES] \
     + sorted(str(x.relative_to(ROOT)) for x in (ROOT / "icons").glob("*.png")) \
     + sorted(str(x.relative_to(ROOT)) for x in (ROOT / "fonts").glob("*.woff2")) \
     + sorted(str(x.relative_to(ROOT)) for x in AUDIO_DIR.glob("*.mp3"))
@@ -421,4 +532,4 @@ sw = re.sub(r'const VERSION = "[^"]*";', f'const VERSION = "wf-{h.hexdigest()[:1
 files = ",\n".join(f'  "{a}"' for a in ["./"] + assets)
 sw = re.sub(r"const FILES = \[[\s\S]*?\];", "const FILES = [\n" + files + "\n];", sw)
 (ROOT / "sw.js").write_text(sw)
-print("built:", ", ".join(f'{p["slug"]}.html' for p in PAGES), "+ index.html, sw.js")
+print("built:", ", ".join(f'{p["slug"]}.html' for p in PAGES + SIGHT_PAGES), "+ index.html, sw.js")

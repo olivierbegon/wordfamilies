@@ -1,0 +1,275 @@
+{{HEAD}}
+/* sight words: word cards with heart letters */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.wcard{background:var(--bg);border:3px solid var(--line);border-radius:22px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+.wcard.heard{border-color:var(--leaf)}
+.big{font-family:var(--read);font-weight:700;font-size:3.4rem;line-height:1.25;display:flex;align-items:flex-end}
+.big .h{color:var(--jam);position:relative}
+.big .h::before{content:"♥";position:absolute;top:-.55em;left:50%;transform:translateX(-50%);font-size:.38em;color:var(--jam)}
+.tip{color:var(--soft);font-size:.95rem;text-align:center;margin:0;line-height:1.3}
+.cardbtns{display:flex;gap:8px;margin-top:auto}
+.cardbtns .say{padding:8px 14px;font-size:1.3rem}
+/* find it */
+.fwords{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.fword{background:var(--bg);border:3px solid var(--line);border-radius:18px;padding:16px 6px;font-family:var(--read);font-weight:700;font-size:2.6rem;line-height:1.1}
+.fword.right{background:var(--leaf);border-color:var(--leaf);color:#fff}
+.fword.wrong{opacity:.35}
+/* spelling (same look as the family lessons) */
+.slots{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.slot{width:64px;height:76px;border-radius:16px;border:3px dashed var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--read);font-weight:700;font-size:2.6rem;background:var(--bg)}
+.slot.filled{border-style:solid;border-color:var(--jam)}
+.slot.ok{border-style:solid;border-color:var(--leaf);background:var(--leaf);color:#fff}
+.slot.bad{border-style:solid;border-color:var(--jam);background:var(--jam);color:var(--jam-ink)}
+.tile:disabled{opacity:.3}
+.row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.spic{font-size:3rem;text-align:center;line-height:1.1;min-height:3.4rem}
+/* fill the gap */
+.gap{font-family:var(--read);font-size:2.2rem;text-align:center;line-height:1.4;margin:0}
+.gap .blank{display:inline-block;min-width:2.6em;border-bottom:4px solid var(--jam);color:var(--jam);font-weight:700}
+.gpic{font-size:3.4rem;text-align:center;line-height:1.1;min-height:3.8rem}
+.gchoices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.line .sw{color:var(--jam);font-weight:700}
+@media (prefers-reduced-motion:no-preference){
+  .shake{animation:shake .4s ease}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+}
+@media (max-width:420px){.fword{font-size:2rem}.gap{font-size:1.7rem}}
+</style>
+
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:8px">
+    <a class="back" href="./">← All lessons</a>
+    <h1>{{H1}}</h1>
+    <p class="lead">{{LEAD}}</p>
+    <div class="voicebar">
+      <label for="voice">Voice</label>
+      <select id="voice"></select>
+      <button class="say small" id="testVoice">🔊 Test</button>
+    </div>
+  </header>
+
+  <section class="card" aria-labelledby="s1">
+    <div class="step">Part 1 · about 2 min</div>
+    <h2 id="s1">Meet the words</h2>
+    <p class="hint">Tap 🔊 to hear the word, 💬 to hear it in a sentence. A <b style="color:var(--jam)">♥ heart letter</b> doesn't make its usual sound, so learn that part by heart.</p>
+    <div class="cards" id="cards"></div>
+    <p class="prog" id="mprog" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="s2">
+    <div class="step">Part 2 · about 2 min</div>
+    <h2 id="s2">Find it!</h2>
+    <p class="hint">Listen. Tap the word you hear. A star for each one right on the first try!</p>
+    <p class="prog" id="fprog"></p>
+    <div style="text-align:center"><button class="say" id="hearFind">🔊 Hear it again</button></div>
+    <div class="fwords" id="fwords"></div>
+    <p class="msg" id="fmsg" aria-live="polite"></p>
+    <div class="stars" id="fstars" aria-label="stars earned"></div>
+    <p class="practice" id="fpractice" style="color:var(--soft);text-align:center;margin:0"></p>
+  </section>
+
+  <section class="card" aria-labelledby="s3">
+    <div class="step">Part 3 · about 2 min</div>
+    <h2 id="s3">Spell it!</h2>
+    <p class="hint">Listen to the word. Tap the letters to spell it.</p>
+    <p class="prog" id="sprogSpell"></p>
+    <div style="text-align:center"><button class="say" id="hearSpell">🔊 Hear the word</button></div>
+    <div class="spic" id="spellPic" aria-live="polite"></div>
+    <div class="slots" id="slots"></div>
+    <div class="tiles" id="letters"></div>
+    <div class="row">
+      <button class="say small" id="undo">⬅ Undo</button>
+      <button class="say" id="checkSpell">✅ Check</button>
+    </div>
+    <p class="msg" id="spellMsg" aria-live="polite"></p>
+    <div class="stars" id="spellStars" aria-label="stars earned"></div>
+  </section>
+
+  <section class="card" aria-labelledby="s4">
+    <div class="step">Part 4 · about 2 min</div>
+    <h2 id="s4">Fill the gap</h2>
+    <p class="hint">Read the sentence. Which word goes in the gap?</p>
+    <p class="prog" id="gprog"></p>
+    <div class="gpic" id="gpic"></div>
+    <p class="gap" id="gsentence" aria-live="polite"></p>
+    <div class="gchoices" id="gchoices"></div>
+    <p class="msg" id="gmsg" aria-live="polite"></p>
+    <div class="stars" id="gstars" aria-label="stars earned"></div>
+  </section>
+
+  <section class="card" aria-labelledby="s5">
+    <div class="step">Part 5 · about 2 min</div>
+    <h2 id="s5">Story: {{STORYTITLE}}</h2>
+    <p class="hint">Read one line. Then tap ✅ at the end to check. The pink words are today's sight words!</p>
+    <div class="story" id="story"></div>
+    <p class="prog" id="sprog" aria-live="polite"></p>
+  </section>
+
+  <section class="card grown" aria-labelledby="s6">
+    <h2 id="s6">For the grown-up</h2>
+    <ul>{{GROWNUP}}</ul>
+  </section>
+</div>
+
+<script>
+const C={{CONFIG}};
+const $=id=>document.getElementById(id);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function pop(el){el.classList.remove("pop");void el.offsetWidth;el.classList.add("pop")}
+function shake(el){el.classList.remove("shake");void el.offsetWidth;el.classList.add("shake")}
+
+{{VOICEJS}}
+
+function bigWord(w){
+  const hs=(C.words.find(x=>x.w===w)||{hearts:[]}).hearts;
+  return w.split("").map((ch,i)=>hs.includes(i)?'<span class="h">'+ch+'</span>':'<span>'+ch+'</span>').join("");
+}
+
+/* ---------- Part 1: meet the words ---------- */
+const heard=new Set();
+function updM(){$("mprog").textContent=heard.size===C.words.length?"⭐ You met all "+C.words.length+" words!":"⭐ "+heard.size+" of "+C.words.length+" words heard"}
+C.words.forEach(x=>{
+  const c=document.createElement("div");c.className="wcard";
+  c.innerHTML='<div class="big" aria-label="'+x.w+'">'+bigWord(x.w)+'</div><p class="tip">'+x.tip+'</p>';
+  const btns=document.createElement("div");btns.className="cardbtns";
+  const a=document.createElement("button");a.className="say";a.textContent="🔊";a.setAttribute("aria-label","Hear "+x.w);
+  a.onclick=()=>{speak(x.w);heard.add(x.w);c.classList.add("heard");updM()};
+  const b=document.createElement("button");b.className="say";b.textContent="💬";b.setAttribute("aria-label","Hear "+x.w+" in a sentence");
+  b.onclick=()=>speak(x.ex);
+  btns.append(a,b);c.appendChild(btns);$("cards").appendChild(c);
+});
+updM();
+
+/* ---------- Part 2: find it ---------- */
+let forder=[],fi=0,fst=0,ffirst=true,flocked=false,fmissed=[],frequeued=new Set();
+function newFind(){
+  forder=shuffle(C.words.map(x=>x.w));
+  shuffle(C.words.map(x=>x.w)).slice(0,Math.max(0,C.findLen-forder.length)).forEach(w=>forder.splice(Math.floor(Math.random()*(forder.length+1)),0,w));
+  for(let i=1;i<forder.length;i++)if(forder[i]===forder[i-1]){const j=(i+2)%forder.length;[forder[i],forder[j]]=[forder[j],forder[i]]}
+  fi=0;fst=0;fmissed=[];frequeued=new Set();$("fstars").textContent="";$("fpractice").textContent="";askFind();
+}
+function askFind(){
+  flocked=false;ffirst=true;const q=forder[fi];
+  $("fprog").textContent="Word "+(fi+1)+" of "+forder.length;$("fmsg").textContent="";
+  const look=C.words.find(x=>x.w===q).look;
+  const box=$("fwords");box.innerHTML="";
+  shuffle([q,...shuffle([...look]).slice(0,3)]).forEach(o=>{
+    const b=document.createElement("button");b.className="fword";b.textContent=o;
+    b.onclick=()=>{
+      if(flocked||b.disabled)return;
+      if(o===q){flocked=true;b.classList.add("right");
+        if(ffirst){fst++;$("fstars").textContent="⭐".repeat(fst);$("fmsg").textContent="Yes! “"+q+"”!"}else $("fmsg").textContent="You found it!";
+        speak(q);setTimeout(()=>{fi++;if(fi<forder.length)askFind();else finishFind()},1400);
+      }else{ffirst=false;b.classList.add("wrong");b.disabled=true;
+        if(!fmissed.includes(q))fmissed.push(q);
+        if(!frequeued.has(q)){frequeued.add(q);forder.push(q)}
+        $("fprog").textContent="Word "+(fi+1)+" of "+forder.length;
+        $("fmsg").textContent="Look at every letter. Listen again!";setTimeout(()=>speak(q,.7),500);}
+    };box.appendChild(b);
+  });
+  setTimeout(()=>speak(q),250);
+}
+$("hearFind").onclick=()=>speak(forder[fi],.7);
+function finishFind(){
+  $("fprog").textContent="";$("fmsg").textContent="You did it! "+fst+" stars!";
+  $("fpractice").textContent=fmissed.length?"Words to practice: "+fmissed.join(", "):"No mistakes!";
+  const box=$("fwords");box.innerHTML="";const b=document.createElement("button");b.className="fword";b.style.gridColumn="1 / -1";b.style.fontSize="1.6rem";b.textContent="Play again";b.onclick=newFind;box.appendChild(b);
+}
+newFind();
+
+/* ---------- Part 3: spelling ---------- */
+let spellList=[],si=0,spellStars=0,typed=[],spellMistake=false,spellLocked=false;
+const POOL="bdfgmnpstlhaeio".split("");
+function newSpell(){spellList=shuffle([...C.spell]);si=0;spellStars=0;$("spellStars").textContent="";askSpell()}
+function askSpell(){
+  const w=spellList[si];typed=[];spellMistake=false;spellLocked=false;
+  $("sprogSpell").textContent="Word "+(si+1)+" of "+spellList.length;
+  $("spellPic").textContent="";$("spellMsg").textContent="";
+  const letters=w.split("");
+  const extras=shuffle(POOL.filter(l=>!letters.includes(l))).slice(0,2);
+  const box=$("letters");box.innerHTML="";
+  shuffle([...letters,...extras]).forEach(l=>{
+    const b=document.createElement("button");b.className="tile";b.textContent=l;
+    b.onclick=()=>{if(spellLocked||typed.length>=letters.length)return;typed.push({l,b});b.disabled=true;drawSlots()};
+    box.appendChild(b);
+  });
+  drawSlots();setTimeout(()=>speak(w),300);
+}
+function drawSlots(state){
+  const w=spellList[si],box=$("slots");box.innerHTML="";
+  for(let i=0;i<w.length;i++){
+    const s=document.createElement("div");s.className="slot";
+    if(typed[i]){s.textContent=typed[i].l;s.classList.add("filled");if(state)s.classList.add(typed[i].l===w[i]?"ok":"bad");}
+    box.appendChild(s);
+  }
+}
+$("hearSpell").onclick=()=>speak(spellList[si],.7);
+$("undo").onclick=()=>{if(spellLocked)return;const t=typed.pop();if(t)t.b.disabled=false;drawSlots()};
+$("checkSpell").onclick=()=>{
+  if(spellLocked)return;const w=spellList[si];
+  if(typed.length<w.length){$("spellMsg").textContent="Fill all the boxes!";shake($("slots"));return}
+  const ok=typed.every((t,i)=>t.l===w[i]);drawSlots(true);
+  if(ok){spellLocked=true;
+    if(!spellMistake){spellStars++;$("spellStars").textContent="⭐".repeat(spellStars)}
+    $("spellMsg").textContent=spellMistake?"You fixed it! “"+w+"”!":"Yes! “"+w+"”!";
+    $("spellPic").innerHTML='<span class="big" style="justify-content:center">'+bigWord(w)+'</span>';speak(w);
+    setTimeout(()=>{si++;if(si<spellList.length)askSpell();else finishSpell()},1800);
+  }else{spellMistake=true;shake($("slots"));
+    $("spellMsg").textContent="Almost! The pink letter is not right. Listen again.";
+    setTimeout(()=>{let k=0;while(k<typed.length&&typed[k].l===w[k])k++;
+      typed.slice(k).forEach(t=>t.b.disabled=false);typed=typed.slice(0,k);drawSlots();speak(w,.6)},1500);
+  }
+};
+function finishSpell(){
+  $("sprogSpell").textContent="";$("slots").innerHTML="";$("letters").innerHTML="";$("spellPic").textContent="🏆";
+  $("spellMsg").textContent="You spelled "+spellList.length+" words! "+spellStars+" stars!";
+  const b=document.createElement("button");b.className="say";b.textContent="Spell again";b.onclick=newSpell;$("letters").appendChild(b);
+}
+newSpell();
+
+/* ---------- Part 4: fill the gap ---------- */
+let gorder=[],gi=0,gst=0,gfirst=true,glocked=false;
+function newGap(){gorder=shuffle([...C.gaps]);gi=0;gst=0;$("gstars").textContent="";askGap()}
+function cap(w,up){return up?w.charAt(0).toUpperCase()+w.slice(1):w}
+function askGap(){
+  glocked=false;gfirst=true;const g=gorder[gi];const up=g.s.startsWith("_");
+  $("gprog").textContent="Sentence "+(gi+1)+" of "+gorder.length;$("gmsg").textContent="";
+  $("gpic").textContent=g.e;
+  $("gsentence").innerHTML=g.s.replace("_",'<span class="blank">&nbsp;</span>');
+  const others=shuffle(C.words.map(x=>x.w).filter(w=>w!==g.a&&!(g.not||[]).includes(w))).slice(0,2);
+  const box=$("gchoices");box.innerHTML="";
+  shuffle([g.a,...others]).forEach(o=>{
+    const b=document.createElement("button");b.className="fword";b.textContent=cap(o,up);
+    b.onclick=()=>{
+      if(glocked||b.disabled)return;
+      if(o===g.a){glocked=true;b.classList.add("right");
+        $("gsentence").innerHTML=g.s.replace("_",'<span class="blank">'+cap(o,up)+'</span>');
+        if(gfirst){gst++;$("gstars").textContent="⭐".repeat(gst);$("gmsg").textContent="Yes!"}else $("gmsg").textContent="You got it!";
+        speak(g.t);setTimeout(()=>{gi++;if(gi<gorder.length)askGap();else finishGap()},2600);
+      }else{gfirst=false;b.classList.add("wrong");b.disabled=true;$("gmsg").textContent="Read the sentence with that word. Does it sound right?"}
+    };box.appendChild(b);
+  });
+}
+function finishGap(){
+  $("gprog").textContent="";$("gpic").textContent="🏆";$("gsentence").textContent="";$("gmsg").textContent="All done! "+gst+" stars!";
+  const box=$("gchoices");box.innerHTML="";const b=document.createElement("button");b.className="fword";b.style.gridColumn="1 / -1";b.style.fontSize="1.6rem";b.textContent="Play again";b.onclick=newGap;box.appendChild(b);
+}
+newGap();
+
+/* ---------- Part 5: story ---------- */
+const st=$("story"),readLines=new Set();
+function updS(){const n=readLines.size,all=C.story.length;
+  $("sprog").textContent=n===all?"📖 The end! You read the whole story!":"📖 "+n+" of "+all+" lines read";}
+C.story.forEach(([h,t,e])=>{
+  const b=document.createElement("div");b.className="line";
+  b.innerHTML='<span class="e" aria-hidden="true">❓</span><span class="ltext">'+h+'</span>';
+  const c=document.createElement("button");c.className="lcheck";c.textContent="✅";c.setAttribute("aria-label","Check: "+t);
+  c.onclick=()=>{const s=b.querySelector(".e");s.textContent=e;pop(s);speak(t);readLines.add(t);c.classList.add("done");updS()};
+  b.appendChild(c);st.appendChild(b);
+});
+updS();
+
+if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})});}
+</script>
+</body>
+</html>
