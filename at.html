@@ -249,10 +249,17 @@ vsel.onchange=()=>{
 fillVoices();
 try{loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}
 
-/* Web Audio: iPads only allow sound after a tap, so the first tap anywhere unlocks it */
-let actx=null,current=null;const buffers={};
+/* Web Audio: iPhones and iPads only allow sound after a tap, so the first tap anywhere unlocks it */
+// iPhone: treat the lessons as media, so they still play when the phone is on silent (Safari 16.4+)
+try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch(e){}
+let actx=null,current=null,warmed=false;const buffers={};
 function unlockAudio(){
-  try{if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();if(actx.state!=="running")actx.resume();}catch(e){}
+  try{
+    if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state!=="running")actx.resume();
+    // play a tiny silent sound inside the tap: some iPhones only start audio this way
+    if(!warmed){const b=actx.createBuffer(1,1,22050),s=actx.createBufferSource();s.buffer=b;s.connect(actx.destination);s.start(0);warmed=true}
+  }catch(e){}
 }
 ["pointerdown","touchend","click"].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
 async function playFile(f){
