@@ -1,6 +1,6 @@
 // Offline cache for the word family lessons.
 // VERSION and FILES are written by build.py. Run it, then push; the iPad picks up the update the next time it opens the app online.
-const VERSION = "wf-1695027cf0";
+const VERSION = "wf-fd097be604";
 const FILES = [
   "./",
   "index.html",
